@@ -1,0 +1,7 @@
+#https://artifacthub.io/packages/helm/external-dns/external-dns
+//With traefik https://github.com/kubernetes-sigs/external-dns/pull/3055 
+repository: https://charts.external-secrets.io
+name: external-dns
+version: 1.15.1
+valuesPath: external-dns.helm-values.yaml
+updateVersion: 1.0.0

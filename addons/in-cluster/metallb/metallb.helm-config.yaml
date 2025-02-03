@@ -1,0 +1,6 @@
+#https://artifacthub.io/packages/helm/metallb/metallb
+repository: https://artifacthub.io/packages/helm/metallb/metallb
+name: metallb  
+version: 0.14.9
+valuesPath: metallb.helm-values.yaml
+updateVersion: 1.0.0

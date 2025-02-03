@@ -1,0 +1,4 @@
+crds:
+  enabled: true
+  keep: false
+enableCertificateOwnerRef: true

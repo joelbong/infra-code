@@ -1,0 +1,15 @@
+deployment:
+  replicas: 3
+providers:
+  kubernetesCRD:
+    allowCrossNamespace: true
+globalArguments: []
+service:
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: traefik.bongima.be
+ports:
+  web:
+    redirections:
+      entryPoint:
+        to: websecure
+        scheme: https

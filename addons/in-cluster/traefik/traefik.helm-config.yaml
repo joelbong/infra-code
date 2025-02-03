@@ -1,0 +1,6 @@
+#https://artifacthub.io/packages/helm/traefik/traefik
+repository: https://traefik.github.io/charts
+name: traefik
+version: 34.1.0
+valuesPath: traefik.helm-values.yaml
+updateVersion: 1.0.0

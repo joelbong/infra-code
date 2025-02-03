@@ -1,0 +1,20 @@
+enabledControllers:
+  - cloud-node
+  - cloud-node-lifecycle
+
+config:
+  clusters:
+    - url: https://pve2.bongima.be:8006/api2/json
+      token_id: "kubernetes@pve!ccm"
+      token_secret: "2bd4db98-7148-44c4-8893-ae0b03a6cfde"
+      region: homelab
+
+useDaemonSet: true
+
+affinity:
+  nodeAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: node-role.kubernetes.io/control-plane
+          operator: Exists
