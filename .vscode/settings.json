@@ -1,0 +1,7 @@
+{
+  "conventionalCommits.scopes": [
+    "sealed-secrets",
+    "external-secrets",
+    "vscode settings"
+  ]
+}
