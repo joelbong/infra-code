@@ -1,6 +1,0 @@
-#https://artifacthub.io/packages/helm/cilium/cilium
-repository: ghcr.io/sergelogvinov/charts/proxmox-cloud-controller
-name: cilium
-version: 1.16.5
-valuesPath: cilium.helm-values.yaml
-updateVersion: 1.0.0

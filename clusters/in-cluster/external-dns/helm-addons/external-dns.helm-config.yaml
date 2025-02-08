@@ -1,0 +1,5 @@
+#https://artifacthub.io/packages/helm/external-dns/external-dns
+repository: https://charts.external-secrets.io
+chart: external-dns
+version: 1.15.1
+privileged: "false"

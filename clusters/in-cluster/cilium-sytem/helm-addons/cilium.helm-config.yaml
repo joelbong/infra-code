@@ -1,0 +1,5 @@
+#https://artifacthub.io/packages/helm/cilium/cilium
+repository: ghcr.io/sergelogvinov/charts/proxmox-cloud-controller
+chart: cilium
+version: 1.17.0
+privileged: "true"

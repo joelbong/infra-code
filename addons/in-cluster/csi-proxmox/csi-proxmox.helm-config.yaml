@@ -1,6 +1,0 @@
-#https://github.com/sergelogvinov/proxmox-csi-plugin/tree/main/charts/proxmox-csi-plugin
-repository: ghcr.io/sergelogvinov/charts/proxmox-csi-plugin
-name: proxmox-csi-plugin
-version: 0.3.4
-valuesPath: csi-proxmox.helm-values.yaml
-updateVersion: 1.0.0

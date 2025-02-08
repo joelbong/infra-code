@@ -1,6 +1,0 @@
-#https://artifacthub.io/packages/helm/argo-cd-oci/argo-cd
-repository: ghcr.io/argoproj/argo-helm/argo-cd
-name: argocd
-version: 7.7.22
-valuesPath: argocd.helm-values.yaml
-updateVersion: 1.0.0

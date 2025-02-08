@@ -1,0 +1,39 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: resources
+  namespace: argocd
+spec:
+  goTemplate: true
+  goTemplateOptions: ["missingkey=error"]
+  generators:
+  - git:
+      repoURL: https://github.com/joelbong/infra-code.git
+      revision: HEAD
+      directories:
+        - path: clusters/**/resources/*.yaml
+      values:
+        cluster: "{{ index .path.segments 1 }}" 
+        namespace: "{{ index .path.segments 2 }}"
+  template:
+    metadata:
+      name: "resources-{{.values.namespace }}-{{ .values.cluster }}"
+    spec:
+      project: admin
+      syncPolicy: 
+        automated:
+          prune: true
+          selfHeal: true    
+        syncOptions:
+        - ApplyOutOfSyncOnly=true
+        - CreateNamespace=true
+        - PruneLast=true
+        - ServerSideApply=true
+        - FailOnSharedResource=true
+      source:
+        repoURL: "{{ .repository }}"
+        chart: "{{ .chart }}"
+        path: "{{ .path.path }}"
+      destination:
+        server: "{{ .values.cluster }}"
+        namespace: "{{ .values.namespace }}"

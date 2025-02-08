@@ -1,0 +1,4 @@
+#https://github.com/sergelogvinov/proxmox-csi-plugin/tree/main/charts/proxmox-csi-plugin
+repository: ghcr.io/sergelogvinov/charts/proxmox-csi-plugin
+chart: proxmox-csi-plugin
+version: 0.3.4 # problem with 0.3.5

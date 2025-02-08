@@ -1,0 +1,18 @@
+#With traefik https://github.com/kubernetes-sigs/external-dns/pull/3055 
+sources:
+  - service
+  - traefik-proxy
+provider:
+  name: pihole
+registry: noop
+extraArgs:
+  - "--traefik-disable-legacy"
+env:
+  - name: EXTERNAL_DNS_PIHOLE_SERVER
+    value: http://pihole.bongima.be
+  - name: EXTERNAL_DNS_PIHOLE_PASSWORD
+    valueFrom:
+      secretKeyRef:
+        name: pihole
+        key: password
+        optional: true

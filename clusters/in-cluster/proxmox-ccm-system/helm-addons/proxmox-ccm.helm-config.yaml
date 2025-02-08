@@ -1,0 +1,5 @@
+#https://github.com/sergelogvinov/proxmox-cloud-controller-manager/tree/main/charts/proxmox-cloud-controller-manager
+repository: ghcr.io/sergelogvinov/charts/proxmox-cloud-controller
+chart: proxmox-cloud-controller-manager 
+version: 0.2.11
+privileged: "true"

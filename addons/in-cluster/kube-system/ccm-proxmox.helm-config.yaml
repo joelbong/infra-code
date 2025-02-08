@@ -1,6 +1,0 @@
-#https://github.com/sergelogvinov/proxmox-cloud-controller-manager/tree/main/charts/proxmox-cloud-controller-manager
-repository: ghcr.io/sergelogvinov/charts/proxmox-cloud-controller
-name: proxmox-cloud-controller-manager 
-version: 0.2.11
-valuesPath: ccm-proxmox.helm-values.yaml
-updateVersion: 1.0.0

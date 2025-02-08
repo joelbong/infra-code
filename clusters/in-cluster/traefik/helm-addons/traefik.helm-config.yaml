@@ -1,0 +1,5 @@
+#https://artifacthub.io/packages/helm/traefik/traefik
+repository: https://traefik.github.io/charts
+chart: traefik
+version: 34.2.0
+privileged: "false"
