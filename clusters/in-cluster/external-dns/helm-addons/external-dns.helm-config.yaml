@@ -2,4 +2,4 @@
 repository: https://charts.external-secrets.io
 chart: external-dns
 version: 1.15.1
-privileged: "false"
+podSecurityLevel: "baseline"

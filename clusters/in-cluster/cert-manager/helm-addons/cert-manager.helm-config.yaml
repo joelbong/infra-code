@@ -2,4 +2,4 @@
 repository: https://charts.jetstack.io
 chart: cert-manager
 version: 1.17.0
-privileged: "false"
+podSecurityLevel: "baseline"

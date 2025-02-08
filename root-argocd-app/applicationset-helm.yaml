@@ -15,18 +15,16 @@ spec:
       values:
         cluster: "{{ index .path.segments 1 }}" 
         namespace: "{{ index .path.segments 2 }}"
-        addon: "{{ .path.filenameNormalized | replace ".helm-config.yaml" "" }}"
+        addon: '{{ .path.filenameNormalized | replace ".helm-config.yaml" "" }}'
   template:
     metadata:
       name: "{{ .values.addon }}-{{.values.namespace }}-{{ .values.cluster }}"
     spec:
       project: admin
       syncPolicy:
-        # managedNamespaceMetadata:
-        #   labels:
-        #     pod-security.kubernetes.io/enforce: privileged
-        #     pod-security.kubernetes.io/audit: privileged
-        #     pod-security.kubernetes.io/warn: privileged
+        managedNamespaceMetadata:
+          labels:
+            pod-security.kubernetes.io/enforce: "{{ .podSecurityLevel }}"
         automated:
           prune: true
           selfHeal: true    
