@@ -2,6 +2,7 @@
   "conventionalCommits.scopes": [
     "sealed-secrets",
     "external-secrets",
-    "vscode settings"
+    "vscode settings",
+    "readme"
   ]
 }

@@ -39,7 +39,7 @@ The explanation are a sequence of steps to perform. I think this is more usefull
 1. Cilium
   1. Create priviliged namespace
   ```kubectl create ns cilium-system```
-  ```kubectl label ns cilium-system pod-security.kubernetes.io/enforce=privileged pod-security.kubernetes.io/audit=privileged pod-security.kubernetes.io/warn=privileged```
+  ```kubectl label ns cilium-system pod-security.kubernetes.io/enforce=privileged```
   2. Install chart
   ```helm repo add cilium https://helm.cilium.io/```
   ```helm upgrade -i cilium cilium/cilium --version 1.17.0 -n cilium-system --create-namespace -f clusters/in-cluster/cilium/helm-system-addons/cilium.helm-values.yaml```
@@ -76,7 +76,7 @@ The explanation are a sequence of steps to perform. I think this is more usefull
     2. Put this token in bitwarden with secret name 'proxmox-ccm-access-token'. Make sure our machine account has access to it
   2. Create priviliged namespace
   ```kubectl create ns proxmox-ccm-system```
-  ```kubectl label ns proxmox-ccm-system pod-security.kubernetes.io/enforce=privileged pod-security.kubernetes.io/audit=privileged pod-security.kubernetes.io/warn=privileged```
+  ```kubectl label ns proxmox-ccm-system pod-security.kubernetes.io/enforce=privileged```
   3. Create external secret
   ```kubectl apply -n proxmox-ccm-system -f clusters/in-cluster/proxmox-ccm-system/resources/proxmox-ccm-external-secret.yaml```
   4. Install chart
@@ -92,7 +92,7 @@ The explanation are a sequence of steps to perform. I think this is more usefull
     3. Storage configured on Proxmox to be used for proxmox csi
   2. Create priviliged namespace
   ```kubectl create ns proxmox-csi-system```
-  ```kubectl label ns proxmox-csi-system pod-security.kubernetes.io/enforce=privileged pod-security.kubernetes.io/audit=privileged pod-security.kubernetes.io/warn=privileged```
+  ```kubectl label ns proxmox-csi-system pod-security.kubernetes.io/enforce=privileged```
   3. Apply external-secret
   ```kubectl apply -n proxmox-csi-system -f clusters/in-cluster/proxmox-csi-system/resources/proxmox-csi-external-secret.yaml```
   2. Install chart
@@ -102,7 +102,7 @@ The explanation are a sequence of steps to perform. I think this is more usefull
 7. Metallb
   1. Create priviliged namespace
   ```kubectl create ns metallb-system```
-  ```kubectl label ns metallb-system pod-security.kubernetes.io/enforce=privileged pod-security.kubernetes.io/audit=privileged pod-security.kubernetes.io/warn=privileged```
+  ```kubectl label ns metallb-system pod-security.kubernetes.io/enforce=privileged```
   2. Install chart
   ```helm repo add metallb https://metallb.github.io/metallb```
   ```helm upgrade -i metallb metallb/metallb --version 0.14.9 -n metallb-system --create-namespace```
