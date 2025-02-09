@@ -144,7 +144,11 @@ The explanation are a sequence of steps to perform. I think this is more usefull
 
 
 ## Gitops with argocd
-TODO
+1. Create external secret for github repo
+```kubectl apply -n argocd -f clusters/in-cluster/argocd/resources/github-repository-external-secret.yaml```
+2. Create argocd application for applicationsets
+```kubectl apply -n argocd -f argocd/root-application.yaml```
+
 
 # References
 - [talos production installation](https://www.talos.dev/v1.9/introduction/prodnotes/)

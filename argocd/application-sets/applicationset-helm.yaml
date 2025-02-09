@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: ApplicationSet
 metadata:
-  name: resources
+  name: helm-addons
   namespace: argocd
 spec:
   goTemplate: true
@@ -10,17 +10,21 @@ spec:
   - git:
       repoURL: https://github.com/joelbong/infra-code.git
       revision: HEAD
-      directories:
-        - path: clusters/**/resources/*.yaml
+      files:
+        - path: clusters/**/helm-addons/*.helm-config.yaml
       values:
         cluster: "{{ index .path.segments 1 }}" 
         namespace: "{{ index .path.segments 2 }}"
+        addon: '{{ .path.filenameNormalized | replace ".helm-config.yaml" "" }}'
   template:
     metadata:
-      name: "resources-{{.values.namespace }}-{{ .values.cluster }}"
+      name: "{{ .values.addon }}-{{.values.namespace }}-{{ .values.cluster }}"
     spec:
-      project: admin
-      syncPolicy: 
+      project: default
+      syncPolicy:
+        managedNamespaceMetadata:
+          labels:
+            pod-security.kubernetes.io/enforce: "{{ .podSecurityLevel }}"
         automated:
           prune: true
           selfHeal: true    
@@ -33,7 +37,11 @@ spec:
       source:
         repoURL: "{{ .repository }}"
         chart: "{{ .chart }}"
-        path: "{{ .path.path }}"
+        targetRevision: "{{ .version }}"
+        helm:
+          valueFiles:
+          - "{{ .values.addon }}.helm-values.yaml"
+          ignoreMissingValueFiles: true
       destination:
         server: "{{ .values.cluster }}"
         namespace: "{{ .values.namespace }}"

@@ -3,6 +3,7 @@
     "sealed-secrets",
     "external-secrets",
     "vscode settings",
-    "readme"
+    "readme",
+    "argocd"
   ]
 }
