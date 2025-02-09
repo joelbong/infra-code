@@ -43,5 +43,5 @@ spec:
           - "{{ .values.addon }}.helm-values.yaml"
           ignoreMissingValueFiles: true
       destination:
-        server: "{{ .values.cluster }}"
+        name: "{{ .values.cluster }}"
         namespace: "{{ .values.namespace }}"

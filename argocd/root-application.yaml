@@ -11,7 +11,6 @@ spec:
       selfHeal: true    
     syncOptions:
     - ApplyOutOfSyncOnly=true
-    - CreateNamespace=true
     - PruneLast=true
     - ServerSideApply=true
     - FailOnSharedResource=true

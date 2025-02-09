@@ -35,5 +35,5 @@ spec:
         chart: "{{ .chart }}"
         path: "{{ .path.path }}"
       destination:
-        server: "{{ .values.cluster }}"
+        name: "{{ .values.cluster }}"
         namespace: "{{ .values.namespace }}"
