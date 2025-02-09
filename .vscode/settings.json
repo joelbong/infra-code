@@ -5,6 +5,7 @@
     "vscode settings",
     "readme",
     "argocd",
-    "helm-config"
+    "helm-config",
+    "external-dns"
   ]
 }
