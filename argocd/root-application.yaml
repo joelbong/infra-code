@@ -4,7 +4,7 @@ metadata:
   name: root-app
   namespace: argocd
 spec:
-  project: default
+  project: admin
   syncPolicy:
     automated:
       prune: true

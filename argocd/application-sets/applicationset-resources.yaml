@@ -19,7 +19,7 @@ spec:
     metadata:
       name: "resources-{{.values.namespace }}-{{ .values.cluster }}"
     spec:
-      project: default
+      project: admin
       syncPolicy: 
         automated:
           prune: true

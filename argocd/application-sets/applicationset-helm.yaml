@@ -20,7 +20,7 @@ spec:
     metadata:
       name: "{{ .values.addon }}-{{.values.namespace }}-{{ .values.cluster }}"
     spec:
-      project: default
+      project: admin
       syncPolicy:
         managedNamespaceMetadata:
           labels:
