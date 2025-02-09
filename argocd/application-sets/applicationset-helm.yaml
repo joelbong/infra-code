@@ -39,6 +39,7 @@ spec:
         chart: "{{ .chart }}"
         targetRevision: "{{ .version }}"
         helm:
+          releaseName: "{{ .values.addon }}"
           valueFiles:
           - "{{ .values.addon }}.helm-values.yaml"
           ignoreMissingValueFiles: true
