@@ -2,4 +2,4 @@
 repository: https://artifacthub.io/packages/helm/metallb/metallb
 chart: metallb  
 version: 0.14.9
-privileged: "true"
+podSecurityLevel: "privileged"

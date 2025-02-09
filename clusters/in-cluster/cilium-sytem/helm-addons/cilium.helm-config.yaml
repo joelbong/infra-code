@@ -2,4 +2,4 @@
 repository: ghcr.io/sergelogvinov/charts/proxmox-cloud-controller
 chart: cilium
 version: 1.17.0
-privileged: "true"
+podSecurityLevel: "privileged"

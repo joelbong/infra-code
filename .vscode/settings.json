@@ -4,6 +4,7 @@
     "external-secrets",
     "vscode settings",
     "readme",
-    "argocd"
+    "argocd",
+    "helm-config"
   ]
 }

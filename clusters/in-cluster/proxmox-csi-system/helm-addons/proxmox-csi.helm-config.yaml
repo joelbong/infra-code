@@ -2,3 +2,4 @@
 repository: ghcr.io/sergelogvinov/charts/proxmox-csi-plugin
 chart: proxmox-csi-plugin
 version: 0.3.4 # problem with 0.3.5
+podSecurityLevel: "privileged"

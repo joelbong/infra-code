@@ -2,4 +2,4 @@
 repository: ghcr.io/sergelogvinov/charts/proxmox-cloud-controller
 chart: proxmox-cloud-controller-manager 
 version: 0.2.11
-privileged: "true"
+podSecurityLevel: "privileged"
