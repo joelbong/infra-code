@@ -3,16 +3,17 @@ kind: AppProject
 metadata:
   name: admin
   namespace: argocd
-  annotations:
-    argocd.argoproj.io/sync-wave: "-1"
 spec:
-  description: default project
+  description: admin project
   sourceRepos:
   - '*'
   destinations:
   - namespace: "*"
     server: "*"
   clusterResourceWhitelist:
+  - group: "*"
+    kind: "*"
+  namespaceResourceWhitelist:
   - group: "*"
     kind: "*"
   orphanedResources:
