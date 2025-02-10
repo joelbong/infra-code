@@ -6,6 +6,7 @@
     "readme",
     "argocd",
     "helm-config",
-    "external-dns"
+    "external-dns",
+    "cilium"
   ]
 }
