@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: ApplicationSet
 metadata:
-  name: helm-addons
+  name: helm
   namespace: argocd
   annotations:
     argocd.argoproj.io/compare-options: ServerSideDiff=true,IncludeMutationWebhook=true
@@ -13,11 +13,11 @@ spec:
       repoURL: https://github.com/joelbong/infra-code.git
       revision: HEAD
       files:
-        - path: clusters/**/helm-addons/*.helm-config.yaml
+        - path: clusters/*/*/helm/*/config.yaml
       values:
         cluster: "{{ index .path.segments 1 }}" 
         namespace: "{{ index .path.segments 2 }}"
-        addon: '{{ .path.filenameNormalized | replace ".helm-config.yaml" "" }}'
+        addon: "{{ index .path.segments 4 }}"
   template:
     metadata:
       name: "{{ .values.addon }}-{{.values.namespace }}-{{ .values.cluster }}"
@@ -44,7 +44,7 @@ spec:
         helm:
           releaseName: "{{ .values.addon }}"
           valueFiles:
-          - "{{ .values.addon }}.helm-values.yaml"
+          - "values.yaml"
           ignoreMissingValueFiles: true
       destination:
         name: "{{ .values.cluster }}"

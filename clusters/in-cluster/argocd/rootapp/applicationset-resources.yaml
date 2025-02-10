@@ -13,7 +13,7 @@ spec:
       repoURL: https://github.com/joelbong/infra-code.git
       revision: HEAD
       directories:
-        - path: clusters/**/resources/*.yaml
+        - path: clusters/*/*/resources
       values:
         cluster: "{{ index .path.segments 1 }}" 
         namespace: "{{ index .path.segments 2 }}"

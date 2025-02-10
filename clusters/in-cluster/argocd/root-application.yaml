@@ -1,10 +1,10 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: root-app
+  name: root-application
   namespace: argocd
 spec:
-  project: admin
+  project: default
   syncPolicy:
     automated:
       prune: true
@@ -17,7 +17,7 @@ spec:
   source:
     repoURL: https://github.com/joelbong/infra-code.git
     targetRevision: HEAD
-    path: argocd/application-sets
+    path: clusters/in-cluster/argocd/root
   destination:
     name: in-cluster
     namespace: argocd

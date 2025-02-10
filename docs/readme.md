@@ -42,15 +42,15 @@ The explanation are a sequence of steps to perform. I think this is more usefull
   ```kubectl label ns cilium-system pod-security.kubernetes.io/enforce=privileged```
   2. Install chart
   ```helm repo add cilium https://helm.cilium.io/```
-  ```helm upgrade -i cilium cilium/cilium --version 1.17.0 -n cilium-system --create-namespace -f clusters/in-cluster/cilium/helm-system-addons/cilium.helm-values.yaml```
+  ```helm upgrade -i cilium cilium/cilium --version 1.17.0 -n cilium-system --create-namespace -f clusters/in-cluster/cilium-system/helm/cilium/values.yaml```
 2. Cert manager
   1. Install chart
   ```helm repo add cert-manager https://charts.jetstack.io```
-  ```helm upgrade -i cert-manager cert-manager/cert-manager --version 1.17.0 -n cert-manager --create-namespace -f clusters/in-cluster/cert-manager/helm-addons/cert-manager.helm-values.yaml```
+  ```helm upgrade -i cert-manager cert-manager/cert-manager --version 1.17.0 -n cert-manager --create-namespace -f clusters/in-cluster/cert-manager/helm/cert-manager/values.yaml```
 3. Sealed secrets
   1. Install chart
   ```helm repo add bitnami-labs https://bitnami-labs.github.io/sealed-secrets```
-  ```helm upgrade -i sealed-secrets bitnami-labs/sealed-secrets --version 2.17.1 -n sealed-secrets --create-namespace -f clusters/in-cluster/sealed-secrets/helm-addons/sealed-secrets.helm-values.yaml```
+  ```helm upgrade -i sealed-secrets bitnami-labs/sealed-secrets --version 2.17.1 -n sealed-secrets --create-namespace -f clusters/in-cluster/sealed-secrets/helm/sealed-secrets/values.yaml```
 4. External secrets
   1. Pre-req
     1. Install [kubeseal](https://github.com/bitnami-labs/sealed-secrets?tab=readme-ov-file#linux) locally
@@ -67,7 +67,7 @@ The explanation are a sequence of steps to perform. I think this is more usefull
   ```kubectl apply -n external-secrets -f clusters/in-cluster/external-secrets/resources/bitwarden-server-tls.yaml```
   4. Install chart
   ```helm repo add external-secrets-operator https://charts.external-secrets.io/```
-  ```helm upgrade -i external-secrets external-secrets-operator/external-secrets --version 0.14.0 -n external-secrets --create-namespace -f clusters/in-cluster/external-secrets/helm-addons/external-secret.helm-values.yaml```
+  ```helm upgrade -i external-secrets external-secrets-operator/external-secrets --version 0.14.0 -n external-secrets --create-namespace -f clusters/in-cluster/external-secrets/helm/external-secret/values.yaml```
   5. Create clusterstore for bitwarden
   ```kubectl apply -n external-secrets -f clusters/in-cluster/external-secrets/resources/clusterstore-bitwarden.yaml```
 5. Proxmox cloud controller manager
@@ -80,8 +80,8 @@ The explanation are a sequence of steps to perform. I think this is more usefull
   3. Create external secret
   ```kubectl apply -n proxmox-ccm-system -f clusters/in-cluster/proxmox-ccm-system/resources/proxmox-ccm-external-secret.yaml```
   4. Install chart
-  ```helm upgrade -i proxmox-ccm oci://ghcr.io/sergelogvinov/charts/proxmox-cloud-controller-manager --version 0.2.11 -n proxmox-ccm-system --create-namespace -f clusters/in-cluster/proxmox-ccm-system/helm-addons/proxmox-ccm.helm-values.yaml```
-  5. The worker nodes will be updated by proxmox-ccm, because we previously untainted the worker nodes manually. We need to remove the node object of a worker node and restart the worker node. Do this for each worker node sequentially
+  ```helm upgrade -i proxmox-ccm oci://ghcr.io/sergelogvinov/charts/proxmox-cloud-controller-manager --version 0.2.11 -n proxmox-ccm-system --create-namespace -f clusters/in-cluster/proxmox-ccm-system/helm/proxmox-ccm/values.yaml```
+  5. The worker nodes will not be updated by proxmox-ccm, because we previously untainted the worker nodes manually. We need to remove the node object of a worker node and restart the worker node. Do this for each worker node sequentially
   ```kubectl delete nodes {WORKER_NODE}```
   ```talosctl reset --nodes {WORKER_NODE_IP} --reboot=true```
   ```talosctl apply-config --insecure --nodes {WORKER_NODE_IP} --file management-cluster/nodes-config/{WORKER_NODE}.yaml```
@@ -96,7 +96,7 @@ The explanation are a sequence of steps to perform. I think this is more usefull
   3. Apply external-secret
   ```kubectl apply -n proxmox-csi-system -f clusters/in-cluster/proxmox-csi-system/resources/proxmox-csi-external-secret.yaml```
   2. Install chart
-  ```helm upgrade -i proxmox-csi oci://ghcr.io/sergelogvinov/charts/proxmox-csi-plugin --version 0.3.4 -n proxmox-csi-system --create-namespace -f clusters/in-cluster/proxmox-csi-system/helm-addons/proxmox-csi.helm-values.yaml```
+  ```helm upgrade -i proxmox-csi oci://ghcr.io/sergelogvinov/charts/proxmox-csi-plugin --version 0.3.4 -n proxmox-csi-system --create-namespace -f clusters/in-cluster/proxmox-csi-system/helm/proxmox-csi/values.yaml```
   3. Install default storage
   ```kubectl apply -f clusters/in-cluster/proxmox-csi-system/resources/proxmox-csi-storageclass.yaml```
 7. Metallb
@@ -117,7 +117,7 @@ The explanation are a sequence of steps to perform. I think this is more usefull
       2. Put this token in bitwarden as 'cloudflare-api-token'
   2. Install chart
   ```helm repo add traefik https://traefik.github.io/charts```
-  ```helm upgrade -i traefik traefik/traefik --version 34.2.0 -n traefik --create-namespace -f clusters/in-cluster/traefik/helm-addons/traefik.helm-values.yaml```
+  ```helm upgrade -i traefik traefik/traefik --version 34.2.0 -n traefik --create-namespace -f clusters/in-cluster/traefik/helm/traefik/values.yaml```
   3. Apply external-secret for cloudflare-api-token
   ```kubectl apply -n traefik -f clusters/in-cluster/traefik/resources/cloudflare-api-token-external-secret.yaml```
   4. Apply issuer with DNS challenge for your domain
@@ -134,11 +134,11 @@ The explanation are a sequence of steps to perform. I think this is more usefull
   ```kubectl apply -n external-dns -f clusters/in-cluster/external-dns/resources/pihole-external-secret.yaml```
   3. Install chart
   ```helm repo add external-dns https://kubernetes-sigs.github.io/external-dns/```
-  ```helm upgrade -i external-dns external-dns/external-dns --version 1.15.1 -n external-dns --create-namespace -f clusters/in-cluster/external-dns/helm-addons/external-dns.helm-values.yaml```
+  ```helm upgrade -i external-dns external-dns/external-dns --version 1.15.1 -n external-dns --create-namespace -f clusters/in-cluster/external-dns/helm/external-dns/values.yaml```
 10. ArgoCD
   1. Install chart
   ```helm repo add argo https://argoproj.github.io/argo-helm```
-  ```helm upgrade -i argocd oci://ghcr.io/argoproj/argo-helm/argo-cd --version 7.8.2 -n argocd --create-namespace -f clusters/in-cluster/argocd/helm-addons/argocd.helm-values.yaml```
+  ```helm upgrade -i argocd oci://ghcr.io/argoproj/argo-helm/argo-cd --version 7.8.2 -n argocd --create-namespace -f clusters/in-cluster/argocd/helm/argocd/values.yaml```
   2. Create ingressroute for ArgoCD
   ```kubectl apply -n argocd -f clusters/in-cluster/argocd/resources/argocd-ingressroute.yaml```
 
@@ -146,9 +146,8 @@ The explanation are a sequence of steps to perform. I think this is more usefull
 ## Gitops with argocd
 1. Create external secret for github repo
 ```kubectl apply -n argocd -f clusters/in-cluster/argocd/resources/github-repository-external-secret.yaml```
-2. Create argocd application for applicationsets
-```kubectl apply -n argocd -f argocd/admin-project.yaml```
-```kubectl apply -n argocd -f argocd/root-application.yaml```
+2. Create root argocd application for applicationsets
+```kubectl apply -n argocd -f clusters/in-cluster/argocd/root-application.yaml```
 
 
 # References

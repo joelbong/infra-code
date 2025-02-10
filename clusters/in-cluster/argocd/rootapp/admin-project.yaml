@@ -3,6 +3,8 @@ kind: AppProject
 metadata:
   name: admin
   namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
 spec:
   description: admin project
   sourceRepos:
