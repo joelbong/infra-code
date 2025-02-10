@@ -25,6 +25,7 @@ spec:
         managedNamespaceMetadata:
           labels:
             pod-security.kubernetes.io/enforce: "{{ .podSecurityLevel }}"
+          annotations: {}
         automated:
           prune: true
           selfHeal: true    
