@@ -8,6 +8,7 @@
     "helm-config",
     "external-dns",
     "cilium",
-    "metallb"
+    "metallb",
+    "application-set"
   ]
 }
