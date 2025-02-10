@@ -3,6 +3,8 @@ kind: ApplicationSet
 metadata:
   name: resources
   namespace: argocd
+  annotations:
+    argocd.argoproj.io/compare-options: ServerSideDiff=true,IncludeMutationWebhook=true
 spec:
   goTemplate: true
   goTemplateOptions: ["missingkey=error"]
