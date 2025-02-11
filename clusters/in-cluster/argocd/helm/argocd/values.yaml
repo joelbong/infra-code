@@ -9,9 +9,26 @@ configs:
     installationID: management-cluster
     statusbadge.enabled: true
   params:
+    #controller
+    controller.status.processors: "1"
+    controller.operation.processors: "1"
+    controller.sync.timeout.seconds: "300"
+    controller.resource.health.persist: "false"
+    controller.kubectl.parallelism.limit: "1"
+    controller.k8sclient.retry.max: "3"
+    controller.k8sclient.retry.base.backoff: "2000"
+    controller.diff.server.side: "true"
+    controller.cluster.cache.batch.events.processing: "true"
+    #server
     server.insecure: true
-    controller.status.processors: 3
-    controller.operation.processors: 3
+    server.k8sclient.retry.max: "3"
+    server.k8sclient.retry.base.backoff: "2000"
+    #reposerver
+    reposerver.parallelism.limit: "1"
+    reposerver.git.lsremote.parallelism.limit: "5"
+    #applicationset controller
+    applicationsetcontroller.enable.leader.election: "true"
+    applicationsetcontroller.concurrent.reconciliations.max: "1"
 
 dex:
   enabled: false
