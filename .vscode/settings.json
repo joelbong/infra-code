@@ -9,6 +9,7 @@
     "external-dns",
     "cilium",
     "metallb",
-    "application-set"
+    "application-set",
+    "proxmox-ccm"
   ]
 }
