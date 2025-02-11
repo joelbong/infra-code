@@ -33,7 +33,7 @@ spec:
         - ServerSideApply=true
         - FailOnSharedResource=true
       source:
-        repoURL: "{{ .repository }}"
+        repoURL: https://github.com/joelbong/infra-code.git
         targetRevision: HEAD
         path: "{{ .path.path }}"
       destination:
