@@ -2,4 +2,3 @@ bitwarden-access-token-secret.yaml
 management-cluster/nodes-config
 management-cluster/templates
 management-cluster/secrets.yaml
-management-cluster/talosconfig
