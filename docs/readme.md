@@ -1,57 +1,60 @@
-# Kubernetes management cluster with talos on proxmox
-See talos docs: [production installation](https://www.talos.dev/v1.9/introduction/prodnotes/) and [install on proxmox](https://www.talos.dev/v1.9/talos-guides/install/virtualized-platforms/proxmox/)
+# Gitops on a kubernetes talos cluster in a proxmox environment
 
-The explanation are a sequence of steps to perform. I think this is more usefull than a automated script as such you can better troubleshoot and actually understand what is going on.
-
-## Pre Requirements
+## Create nodes in Proxmox
 1. Creat a VM and convert to a template.
 2. Create 3 controle plane nodes from this template 
 3. Create 3 worker nodes
-4. Configure for each VM a static IP address for all the control and worker nodes. This was configured in my home router Opnsense with DHCP static mapping (thus based on the mac address of the VM)
-5. Install the [talosctl client](https://www.talos.dev/v1.9/talos-guides/install/talosctl/)
+4. (Optional) Configure for each VM a static IP address for all the control and worker nodes. This was configured in my home router Opnsense with DHCP static mapping (thus based on the mac address of the VM)
 
-## Bootstrap talos cluster
-1. Generate the secrets
-```talosctl gen secrets -o secrets.yaml```
-2. Generate template configs
-```talosctl gen config --with-secrets secrets.yaml management-cluster https://NODE_IP:6443```
-3. For each control plane node create a talos configuration file
-```talosctl machineconfig patch templates/controlplane.yaml --patch @patches/general.patch --patch @patches/{CONTROL_PLANE_NODE}.patch --output nodes-config/{CONTROL_PLANE_NODE}.yaml```
-4. For each worker node create a talos configuration file
-```talosctl machineconfig patch templates/controlplane.yaml --patch @patches/general.patch --patch @patches/{WORKER_NODE}.patch --output nodes-config/{WORKER_NODE}.yaml```
-5. For each node apply the config 
-```talosctl apply-config --insecure --nodes ${NODE_IP} --file nodes-config/controlplane1.yaml```
-6. Configure talos endpoints
-```talosctl --talosconfig=./talosconfig config endpoint ${CONTROL_PLANE_NODE_1_IP} ${CONTROL_PLANE_NODE_2_IP} ${CONTROL_PLANE_NODE_3_IP}```
-7. Bootstrap cluster
+## Bootstrap talos K8s cluster
+1. Install the [talosctl client](https://www.talos.dev/v1.9/talos-guides/install/talosctl/)
+2. Generate the secrets
+```talosctl gen secrets -o management-cluster/secrets.yaml```
+3. Generate template configs
+```talosctl gen config --with-secrets management-cluster/secrets.yaml management-cluster https://NODE_IP:6443 -o management-cluster/templates/```
+4. For each control plane node create a talos configuration file
+```talosctl machineconfig patch management-cluster/templates/controlplane.yaml --patch @management-cluster/patches/general.patch --patch @management-cluster/patches/${CONTROL_PLANE_NODE}.patch --output management-cluster/nodes-config/${CONTROL_PLANE_NODE}.yaml```
+5. For each worker node create a talos configuration file
+```talosctl machineconfig patch management-cluster/templates/controlplane.yaml --patch @management-cluster/patches/general.patch --patch @management-cluster/patches/${WORKER_NODE}.patch --output management-cluster/nodes-config/${WORKER_NODE}.yaml```
+6. For each node apply the config 
+```talosctl apply-config --insecure --nodes ${NODE_IP} --file management-cluster/nodes-config/${NODE}.yaml```
+7. Configure talos endpoints
+```talosctl --talosconfig=management-cluster/templates/talosconfig config endpoint ${CONTROL_PLANE_NODE_1_IP} ${CONTROL_PLANE_NODE_2_IP} ${CONTROL_PLANE_NODE_3_IP}```
+8. Bootstrap cluster
+```cp management-cluster/templates/talosconfig ~/.talos/config```
 ```talosctl bootstrap --nodes {CONTROL_PLANE_NODE_1_IP}```
-8. Get your kubeconfig
-```talosctl kubeconfig```
-9. Remove taint 'uninitialized' from worker nodes
-```kubectl taint nodes ${WORKER_NODE} node.cloudprovider.kubernetes.io/uninitialized-```
+9. Get your kubeconfig
+```talosctl kubeconfig --nodes {CONTROL_PLANE_NODE_1_IP}```
 
-# Install addons on management cluster
-
-## Pre Requirements
-1. Install helm
-
-## Manual installation of addons
-1. Cilium
+## Install addons on cluster
+1. Pre req:
+  1. Install helm
+2. Cilium
   1. Create priviliged namespace
   ```kubectl create ns cilium-system```
   ```kubectl label ns cilium-system pod-security.kubernetes.io/enforce=privileged```
   2. Install chart
   ```helm repo add cilium https://helm.cilium.io/```
   ```helm upgrade -i cilium cilium/cilium --version 1.17.0 -n cilium-system --create-namespace -f clusters/in-cluster/cilium-system/helm/cilium/values.yaml```
-2. Cert manager
+3. Proxmox cloud controller manager, needed to untainted the nodes
+   1. Pre-req
+    1. (Create a proxmox token)[https://github.com/sergelogvinov/proxmox-cloud-controller-manager/blob/main/docs/install.md#create-a-proxmox-token] for proxmox-cloud-controller-manager
+    2. Put this token in bitwarden with secret name 'proxmox-ccm-access-token'. Make sure our machine account has access to it
+  2. Create priviliged namespace
+  ```kubectl create ns proxmox-ccm-system```
+  ```kubectl label ns proxmox-ccm-system pod-security.kubernetes.io/enforce=privileged```
+  3. Create secret proxmox-ccm-access-token
+  4. Install chart
+  ```helm upgrade -i proxmox-ccm oci://ghcr.io/sergelogvinov/charts/proxmox-cloud-controller-manager --version 0.2.11 -n proxmox-ccm-system --create-namespace -f clusters/in-cluster/proxmox-ccm-system/helm/proxmox-ccm/values.yaml```
+4. Cert manager
   1. Install chart
   ```helm repo add cert-manager https://charts.jetstack.io```
   ```helm upgrade -i cert-manager cert-manager/cert-manager --version 1.17.0 -n cert-manager --create-namespace -f clusters/in-cluster/cert-manager/helm/cert-manager/values.yaml```
-3. Sealed secrets
+5. Sealed secrets
   1. Install chart
   ```helm repo add bitnami-labs https://bitnami-labs.github.io/sealed-secrets```
   ```helm upgrade -i sealed-secrets bitnami-labs/sealed-secrets --version 2.17.1 -n sealed-secrets --create-namespace -f clusters/in-cluster/sealed-secrets/helm/sealed-secrets/values.yaml```
-4. External secrets
+6. External secrets
   1. Pre-req
     1. Install [kubeseal](https://github.com/bitnami-labs/sealed-secrets?tab=readme-ov-file#linux) locally
     2. Bitwarden account with secret management
@@ -67,25 +70,13 @@ The explanation are a sequence of steps to perform. I think this is more usefull
   ```kubectl apply -n external-secrets -f clusters/in-cluster/external-secrets/resources/bitwarden-server-tls.yaml```
   4. Install chart
   ```helm repo add external-secrets-operator https://charts.external-secrets.io/```
-  ```helm upgrade -i external-secrets external-secrets-operator/external-secrets --version 0.14.0 -n external-secrets --create-namespace -f clusters/in-cluster/external-secrets/helm/external-secret/values.yaml```
+  ```helm upgrade -i external-secrets external-secrets-operator/external-secrets --version 0.14.0 -n external-secrets --create-namespace -f clusters/in-cluster/external-secrets/helm/external-secrets/values.yaml```
   5. Create clusterstore for bitwarden
   ```kubectl apply -n external-secrets -f clusters/in-cluster/external-secrets/resources/clusterstore-bitwarden.yaml```
-5. Proxmox cloud controller manager
-  1. Pre-req
-    1. (Create a proxmox token)[https://github.com/sergelogvinov/proxmox-cloud-controller-manager/blob/main/docs/install.md#create-a-proxmox-token] for proxmox-cloud-controller-manager
-    2. Put this token in bitwarden with secret name 'proxmox-ccm-access-token'. Make sure our machine account has access to it
-  2. Create priviliged namespace
-  ```kubectl create ns proxmox-ccm-system```
-  ```kubectl label ns proxmox-ccm-system pod-security.kubernetes.io/enforce=privileged```
-  3. Create external secret
+7. Proxmox cloud controller manager to create secret proxmox-ccm-access-token with external secret
+  1. Create external secret
   ```kubectl apply -n proxmox-ccm-system -f clusters/in-cluster/proxmox-ccm-system/resources/proxmox-ccm-external-secret.yaml```
-  4. Install chart
-  ```helm upgrade -i proxmox-ccm oci://ghcr.io/sergelogvinov/charts/proxmox-cloud-controller-manager --version 0.2.11 -n proxmox-ccm-system --create-namespace -f clusters/in-cluster/proxmox-ccm-system/helm/proxmox-ccm/values.yaml```
-  5. The worker nodes will not be updated by proxmox-ccm, because we previously untainted the worker nodes manually. We need to remove the node object of a worker node and restart the worker node. Do this for each worker node sequentially
-  ```kubectl delete nodes {WORKER_NODE}```
-  ```talosctl reset --nodes {WORKER_NODE_IP} --reboot=true```
-  ```talosctl apply-config --insecure --nodes {WORKER_NODE_IP} --file management-cluster/nodes-config/{WORKER_NODE}.yaml```
-6. Install proxmox-csi
+8. Install proxmox-csi
   1. Pre-req:
     1. (Create a proxmox token)[https://github.com/sergelogvinov/proxmox-cloud-controller-manager/blob/main/docs/install.md#create-a-proxmox-token] for proxmox-csi
     2. Put this token in bitwarden with secret name 'proxmox-csi-access-token'. Make sure our machine account has access to it
@@ -99,7 +90,7 @@ The explanation are a sequence of steps to perform. I think this is more usefull
   ```helm upgrade -i proxmox-csi oci://ghcr.io/sergelogvinov/charts/proxmox-csi-plugin --version 0.3.4 -n proxmox-csi-system --create-namespace -f clusters/in-cluster/proxmox-csi-system/helm/proxmox-csi/values.yaml```
   3. Install default storage
   ```kubectl apply -f clusters/in-cluster/proxmox-csi-system/resources/proxmox-csi-storageclass.yaml```
-7. Metallb
+9. Metallb
   1. Create priviliged namespace
   ```kubectl create ns metallb-system```
   ```kubectl label ns metallb-system pod-security.kubernetes.io/enforce=privileged```
@@ -110,7 +101,7 @@ The explanation are a sequence of steps to perform. I think this is more usefull
   ```kubectl apply -n metallb-system -f clusters/in-cluster/metallb-system/resources/l2-advertisement.yaml```
   4. Create ip pool
   ```kubectl apply -n metallb-system -f clusters/in-cluster/metallb-system/resources/ip-address-pool.yaml```
-8. Traefik
+10. Traefik
   1. Pre-req
     1. Cloudflare account and a domain
       1. Create an API token for your domain in Cloudflare
@@ -126,16 +117,16 @@ The explanation are a sequence of steps to perform. I think this is more usefull
 ```kubectl apply -n traefik -f clusters/in-cluster/traefik/resources/cloudflare-bongima-subdomains-certificate.yaml```
   6. Apply tls store
   ```kubectl apply -n traefik -f clusters/in-cluster/traefik/resources/tls-store.yaml```
-9. External-DNS
+11. External-DNS
   1. Pre req
     1. Create a pihole secret in bitwarden named 'pihole-admin'
   2. Create external-secret for this pihole-admin
   ```kubectl create ns external-dns```
   ```kubectl apply -n external-dns -f clusters/in-cluster/external-dns/resources/pihole-external-secret.yaml```
   3. Install chart
-  ```helm repo add external-dns https://kubernetes-sigs.github.io/external-dns/```
+  ```helm repo add external-dns https://kubernetes-sigs.github.io/external-dns```
   ```helm upgrade -i external-dns external-dns/external-dns --version 1.15.1 -n external-dns --create-namespace -f clusters/in-cluster/external-dns/helm/external-dns/values.yaml```
-10. ArgoCD
+12. ArgoCD
   1. Install chart
   ```helm repo add argo https://argoproj.github.io/argo-helm```
   ```helm upgrade -i argocd oci://ghcr.io/argoproj/argo-helm/argo-cd --version 7.8.2 -n argocd --create-namespace -f clusters/in-cluster/argocd/helm/argocd/values.yaml```
@@ -143,14 +134,8 @@ The explanation are a sequence of steps to perform. I think this is more usefull
   ```kubectl apply -n argocd -f clusters/in-cluster/argocd/resources/argocd-ingressroute.yaml```
 
 
-## Gitops with argocd
+## Gitops with Argocd
 1. Create external secret for github repo
-```kubectl apply -n argocd -f clusters/in-cluster/argocd/resources/github-repository-external-secret.yaml```
+```kubectl apply -n argocd -f clusters/in-cluster/argocd/resources/repository-credential-external-secret.yaml```
 2. Create root argocd application for applicationsets
 ```kubectl apply -n argocd -f clusters/in-cluster/argocd/root-application.yaml```
-
-
-# References
-- [talos production installation](https://www.talos.dev/v1.9/introduction/prodnotes/)
-- [talos installation on proxmox](https://www.talos.dev/v1.9/talos-guides/install/virtualized-platforms/proxmox/)
-- [deploying cilium on talos](https://www.talos.dev/v1.9/kubernetes-guides/network/deploying-cilium/)
