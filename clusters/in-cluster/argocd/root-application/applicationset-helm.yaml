@@ -44,7 +44,7 @@ spec:
         helm:
           releaseName: "{{ .values.addon }}"
           valueFiles:
-          - "values.yaml"
+          - "{{.path.path}}/values.yaml"
           ignoreMissingValueFiles: true
       destination:
         name: "{{ .values.cluster }}"
