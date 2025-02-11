@@ -20,7 +20,7 @@ configs:
     controller.diff.server.side: "true"
     controller.cluster.cache.batch.events.processing: "true"
     #server
-    server.insecure: true
+    server.insecure: "true"
     server.k8sclient.retry.max: "3"
     server.k8sclient.retry.base.backoff: "2000"
     #reposerver
