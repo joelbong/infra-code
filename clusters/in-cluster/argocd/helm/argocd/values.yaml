@@ -1,6 +1,9 @@
 crds:
   keep: false
 
+global:
+  domain: argocd.bongima.be
+
 configs:
   cm:
     exec.enabled: true
