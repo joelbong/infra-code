@@ -1,3 +1,5 @@
+createAggregateRoles: true
+
 crds:
   keep: false
 
@@ -43,9 +45,27 @@ redis-ha:
 
 controller:
   replicas: 1
+  clusterRoleRules:
+    enabled: true
+    rules:
+    - apiGroups:
+      - "*"
+      resources:
+      - "*"
+      verbs:
+      - "*"
 
 server:
   replicas: 2
+  clusterRoleRules:
+    enabled: true
+    rules:
+    - apiGroups:
+      - "*"
+      resources:
+      - "*"
+      verbs:
+      - "*"
 
 repoServer:
   replicas: 2
