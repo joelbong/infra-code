@@ -34,7 +34,7 @@ spec:
         - FailOnSharedResource=true
       source:
         repoURL: "{{ .repository }}"
-        chart: "{{ .chart }}"
+        targetRevision: HEAD
         path: "{{ .path.path }}"
       destination:
         name: "{{ .values.cluster }}"
