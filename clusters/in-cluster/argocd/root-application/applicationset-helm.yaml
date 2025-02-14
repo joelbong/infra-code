@@ -11,7 +11,7 @@ spec:
   generators:
   - git:
       repoURL: https://github.com/joelbong/infra-code.git
-      revision: HEAD
+      revision: main
       files:
         - path: clusters/*/*/helm/*/config.yaml
       values:
@@ -47,7 +47,7 @@ spec:
               - "$values/{{.path.path}}/values.yaml"
             ignoreMissingValueFiles: true
         - repoURL: https://github.com/joelbong/infra-code.git
-          targetRevision: HEAD
+          targetRevision: main
           ref: values
       destination:
         name: "{{ .values.cluster }}"

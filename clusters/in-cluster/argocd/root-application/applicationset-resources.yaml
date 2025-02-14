@@ -11,7 +11,7 @@ spec:
   generators:
   - git:
       repoURL: https://github.com/joelbong/infra-code.git
-      revision: HEAD
+      revision: main
       directories:
         - path: clusters/*/*/resources
       values:
@@ -34,7 +34,7 @@ spec:
         - FailOnSharedResource=true
       source:
         repoURL: https://github.com/joelbong/infra-code.git
-        targetRevision: HEAD
+        targetRevision: main
         path: "{{ .path.path }}"
       destination:
         name: "{{ .values.cluster }}"
