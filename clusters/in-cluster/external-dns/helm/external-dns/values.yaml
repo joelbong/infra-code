@@ -2,6 +2,7 @@
 sources:
   - service
   - traefik-proxy
+policy: sync
 provider:
   name: pihole
 registry: noop
