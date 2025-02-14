@@ -1,11 +1,11 @@
 machine:
   certSANs:
     - 10.6.110.20
-    - controle-plane-2.dev.bongima.be
+    - controleplane2.bongima.be
 cluster:
   controlPlane:
     endpoint: https://10.6.110.20:6443 
   apiServer:
     certSANs:
       - 10.6.110.20
-      - controle-plane-2.dev.bongima.be
+      - controleplane2.bongima.be

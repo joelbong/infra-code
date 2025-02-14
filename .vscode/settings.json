@@ -11,6 +11,7 @@
     "metallb",
     "application-set",
     "proxmox-ccm",
-    ".gitignore"
+    ".gitignore",
+    "talos"
   ]
 }
