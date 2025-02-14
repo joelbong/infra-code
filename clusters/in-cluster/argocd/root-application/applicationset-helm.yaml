@@ -20,7 +20,7 @@ spec:
         addon: "{{ index .path.segments 4 }}"
   template:
     metadata:
-      name: "{{ .values.addon }}-{{.values.namespace }}-{{ .values.cluster }}"
+      name: "helm-{{ .values.addon }}-{{.values.namespace }}-{{ .values.cluster }}"
     spec:
       project: admin
       syncPolicy:
