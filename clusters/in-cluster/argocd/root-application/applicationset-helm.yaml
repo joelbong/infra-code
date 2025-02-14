@@ -37,15 +37,18 @@ spec:
         - PruneLast=true
         - ServerSideApply=true
         - FailOnSharedResource=true
-      source:
-        repoURL: "{{ .repository }}"
-        chart: "{{ .chart }}"
-        targetRevision: "{{ .version }}"
-        helm:
-          releaseName: "{{ .values.addon }}"
-          valueFiles:
-          - "{{.path.path}}/values.yaml"
-          ignoreMissingValueFiles: true
+      sources:
+        - repoURL: "{{ .repository }}"
+          chart: "{{ .chart }}"
+          targetRevision: "{{ .version }}"
+          helm:
+            releaseName: "{{ .values.addon }}"
+            valueFiles:
+              - "$values/{{.path.path}}/values.yaml"
+            ignoreMissingValueFiles: true
+        - repoURL: https://github.com/joelbong/infra-code.git
+          targetRevision: HEAD
+          ref: values
       destination:
         name: "{{ .values.cluster }}"
         namespace: "{{ .values.namespace }}"
