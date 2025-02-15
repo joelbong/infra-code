@@ -1,0 +1,5 @@
+#https://artifacthub.io/packages/helm/cilium/cilium
+repository: https://helm.cilium.io
+chart: cilium
+version: 1.17.1
+podSecurityLevel: "privileged"
