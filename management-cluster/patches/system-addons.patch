@@ -1,0 +1,45 @@
+cluster:
+  inlineManifests:
+    - name: create-storage-class
+      contents: |
+        ---
+        apiVersion: storage.k8s.io/v1
+        kind: StorageClass
+        metadata:
+          name: proxmox-csi
+          annotations:
+            storageclass.kubernetes.io/is-default-class: "true"
+        allowVolumeExpansion: true
+        parameters:
+          csi.storage.k8s.io/fstype: ext4
+          storage: kubernetes-pv
+          cache: none
+          ssd: "true"
+        mountOptions:
+          - noatime
+        provisioner: csi.proxmox.sinextra.dev
+        reclaimPolicy: Delete
+        volumeBindingMode: WaitForFirstConsumer
+    - name: metallb-ippool
+      contents: |
+        ---
+        apiVersion: metallb.io/v1beta1
+        kind: L2Advertisement
+        metadata:
+          name: l2-advertisement
+          namespace: metallb-system
+        ---
+        apiVersion: metallb.io/v1beta1
+        kind: IPAddressPool
+        metadata:
+          name: ip-pool
+          namespace: metallb-system
+        spec:
+          addresses:
+          - 10.6.110.201-10.6.110.240
+  externalCloudProvider:
+    enabled: true
+    manifests:
+      - https://raw.githubusercontent.com/sergelogvinov/proxmox-cloud-controller-manager/main/docs/deploy/cloud-controller-manager.yml
+      - https://raw.githubusercontent.com/sergelogvinov/proxmox-csi-plugin/main/docs/deploy/proxmox-csi-plugin.yml
+      - https://raw.githubusercontent.com/metallb/metallb/v0.14.9/config/manifests/metallb-native.yaml

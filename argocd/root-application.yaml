@@ -17,7 +17,7 @@ spec:
   source:
     repoURL: https://github.com/joelbong/infra-code.git
     targetRevision: main
-    path: clusters/in-cluster/argocd/root-application
+    path: argocd/root-application
   destination:
     name: in-cluster
     namespace: argocd

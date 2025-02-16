@@ -1,4 +1,5 @@
 bitwarden-access-token-secret.yaml
+proxmox-secrets.patch
 management-cluster/nodes-config
 management-cluster/templates
 management-cluster/secrets.yaml

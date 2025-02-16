@@ -1,5 +1,2 @@
 bitwarden-sdk-server:
   enabled: true
-  image:
-    tls:
-      enabled: true

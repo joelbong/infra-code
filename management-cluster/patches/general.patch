@@ -1,10 +1,8 @@
-machine:
-  kubelet:
-    extraArgs:
-      cloud-provider: external
 cluster:
   network:
     cni:
-      name: none
+      name: custom
+      urls:
+        - https://raw.githubusercontent.com/joelbong/infra-code/refs/heads/main/management-cluster/cilium/helm-output.yaml
   proxy:
     disabled: true

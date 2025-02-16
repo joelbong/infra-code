@@ -1,5 +1,0 @@
-#https://artifacthub.io/packages/helm/metallb/metallb
-repository: https://metallb.github.io/metallb
-chart: metallb  
-version: 0.14.9
-podSecurityLevel: "privileged"

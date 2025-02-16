@@ -1,5 +1,5 @@
 #https://artifacthub.io/packages/helm/external-dns/external-dns
 repository: https://kubernetes-sigs.github.io/external-dns
 chart: external-dns
-version: 1.15.1
+version: 1.15.2
 podSecurityLevel: "baseline"
