@@ -9,4 +9,4 @@ spec:
   issuerRef:
     name: cloudflare-bongima-dnszone
   dnsNames:
-  - argocd.bongima.be
+  - "*.bongima.be"
