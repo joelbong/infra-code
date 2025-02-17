@@ -12,9 +12,12 @@
 ```talosctl gen secrets -o management-cluster/secrets.yaml```
 3. Generate template configs (gitignored)
 ```talosctl gen config --with-secrets management-cluster/secrets.yaml management-cluster https://NODE_IP:6443 -o management-cluster/templates/```
-4. Create [cloud-controller.patch](https://github.com/sergelogvinov/proxmox-csi-plugin/blob/main/docs/install.md#install-the-plugin-by-using-talos-machine-config) (gitignored)
+4. Create secrets.patch in inline manifest
+  - Create helm output for cilium and put the generated certs cilium-ca and hubble-server-certs in the secrets
+  ```helm template cilium cilium/cilium --version 1.17.1 -n kube-system -f management-cluster/cilium/values.yaml > management-cluster/cilium/helm-output.yaml``` 
+  - [Create secret for proxmox ccm and csi](https://github.com/sergelogvinov/proxmox-csi-plugin/blob/main/docs/install.md#install-the-plugin-by-using-talos-machine-config) 
 5. For each control plane node create a talos configuration file (gitignored)
-```talosctl machineconfig patch management-cluster/templates/controlplane.yaml --patch @management-cluster/patches/general.patch --patch @management-cluster/patches/proxmox-secrets.patch --patch @management-cluster/patches/system-addons.patch --patch @management-cluster/patches/${CONTROL_PLANE_NODE}.patch --output management-cluster/nodes-config/${CONTROL_PLANE_NODE}.yaml```
+```talosctl machineconfig patch management-cluster/templates/controlplane.yaml --patch @management-cluster/patches/general.patch --patch @management-cluster/patches/secrets.patch --patch @management-cluster/patches/system-addons.patch --patch @management-cluster/patches/controlplane.patch --patch @management-cluster/patches/${CONTROL_PLANE_NODE}.patch --output management-cluster/nodes-config/${CONTROL_PLANE_NODE}.yaml```
 6. For each worker node create a talos configuration file (gitignored)
 ```talosctl machineconfig patch management-cluster/templates/worker.yaml --patch @management-cluster/patches/general.patch --patch @management-cluster/patches/system-addons.patch --patch @management-cluster/patches/${WORKER_NODE}.patch --output management-cluster/nodes-config/${WORKER_NODE}.yaml```
 7. Apply the config for controll plane nodes 
