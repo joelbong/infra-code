@@ -7,5 +7,3 @@ extraEnvVars:
     value: prod
   - name: ENABLE_SIGNUP
     value: "false"
-  - name: ENABLE_SIGNUP
-    value: "false"
