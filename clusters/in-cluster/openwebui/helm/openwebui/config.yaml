@@ -1,0 +1,5 @@
+#https://github.com/open-webui/helm-charts/blob/main/charts/open-webui/values.yaml
+repository: https://helm.openwebui.com/
+chart: open-webui
+version: 5.15.0
+podSecurityLevel: "baseline"
