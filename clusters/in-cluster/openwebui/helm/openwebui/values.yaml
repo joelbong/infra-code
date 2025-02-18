@@ -1,0 +1,11 @@
+ollama:
+  enabled: false
+pipelines:
+  enabled: false
+extraEnvVars:
+  - name: ENV
+    value: prod
+  - name: ENABLE_SIGNUP
+    value: "false"
+  - name: ENABLE_SIGNUP
+    value: "false"
