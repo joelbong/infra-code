@@ -1,0 +1,5 @@
+#https://github.com/kubernetes-sigs/cluster-api-operator/blob/main/hack/charts/cluster-api-operator/values.yaml
+repository: https://kubernetes-sigs.github.io/cluster-api-operator
+chart: cluster-api-operator
+version: 0.17.0
+podSecurityLevel: "baseline"
