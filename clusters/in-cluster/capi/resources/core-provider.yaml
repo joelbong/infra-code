@@ -1,3 +1,5 @@
+#https://cluster-api-operator.sigs.k8s.io/
+#https://cluster-api.sigs.k8s.io/introduction
 apiVersion: operator.cluster.x-k8s.io/v1alpha2
 kind: CoreProvider
 metadata:
