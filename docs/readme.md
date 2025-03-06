@@ -13,7 +13,7 @@
 2. Generate the secrets (gitignored)
    `talosctl gen secrets -o management-cluster/secrets.yaml`
 3. Generate template configs (gitignored)
-   `talosctl gen config --with-secrets management-cluster/secrets.yaml management-cluster https://NODE_IP:6443 -o management-cluster/templates/`
+   `talosctl gen config --with-secrets management-cluster/secrets.yaml management-cluster https://NODE_IP:6443 -o management-cluster/templates/ --force`
 4. Create secrets.patch in inline manifest
    - Create helm output for cilium and put the generated certs cilium-ca and hubble-server-certs in the secrets
      `helm template cilium cilium/cilium --version 1.17.1 -n kube-system -f management-cluster/cilium/values.yaml > management-cluster/cilium/helm-output.yaml`
@@ -86,3 +86,27 @@
       `kubectl apply -n argocd -f clusters/in-cluster/argocd/resources/repository-credential-external-secret.yaml`
    4. Create root argocd application for applicationsets
       `kubectl apply -n argocd -f argocd/root-application.yaml`
+
+## Updates and Maintenances
+
+- Remove dead pods
+  `kubectl delete pod --field-selector=status.phase==Succeeded -A`
+  `kubectl delete pod --field-selector=status.phase==Failed -A`
+- Argocd will auto update the helm charts in clusters
+- update Argocd with helm process and update version in argocd/config.yaml
+  `helm upgrade -i argocd oci://ghcr.io/argoproj/argo-helm/argo-cd --version ${VERSION} -n argocd --create-namespace -f argocd/values.yaml`
+- Upgrade talosctl
+  `brew install siderolabs/tap/talosctl`
+- upgrade talos image version
+  - get latest image version from [talos image factory](https://factory.talos.dev/)
+  - download ISO into proxmox and replace disk in talos VM template
+- Upgrade talos image version node per node. Start with controlplane nodes. Continue to next node when previous node in ready state
+  `talosctl upgrade --nodes ${NODE_IP/DNS} --image ${TALOS_IMAGE}`
+- Update talos machine config
+  - update Proxmox csi, Proxmox ccm and Metallb versions in management-cluster/patches/system-addons.patch
+  - put new Talos image version in management-cluster/patches/general.patch.
+  - Repeat step 3 till step 7 in [talos bootstrap](#bootstrap-talos-k8s-cluster)
+- [Upgrade kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/)
+- Upgrade kubernetes version. For one controlplane nodes
+  `talosctl --nodes ${CONTROL_PLANE_IP/NODE} upgrade-k8s --to ${VERSION}`
+- upgrade Proxmox node
