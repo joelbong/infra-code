@@ -4,3 +4,5 @@ apiVersion: operator.cluster.x-k8s.io/v1alpha2
 kind: CoreProvider
 metadata:
   name: cluster-api
+spec:
+  version: v1.9.5
