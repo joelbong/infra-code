@@ -5,5 +5,3 @@ metadata:
   name: proxmox
 spec:
   version: v0.6.2
-  configSecret:
-    name: proxmox-variables
