@@ -33,6 +33,7 @@ spec:
     prefix: 24
     addresses:
       - 10.6.110.50-59
+    dnsServers: 10.6.1.53
   allowedNodes: [pve2]
   credentialsRef:
     name: proxmox-credentials
@@ -42,7 +43,7 @@ kind: TalosControlPlane
 metadata:
   name: talos-control-planes
 spec:
-  version: "32.3"
+  version: "v32.3"
   replicas: 1
   infrastructureTemplate:
     kind: ProxmoxMachineTemplate
@@ -106,7 +107,7 @@ spec:
         cluster.x-k8s.io/cluster-name: cluster
     spec:
       clusterName: cluster
-      version: 32.3
+      version: "v32.3"
       bootstrap:
         configRef:
           kind: TalosConfigTemplate
