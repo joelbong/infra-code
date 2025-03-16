@@ -32,7 +32,7 @@ spec:
   ipv4Config:
     prefix: 24
     addresses:
-      - 10.6.110.50-59
+      - 10.6.110.50-10.6.110.59
   dnsServers:
     - 10.6.1.53
   allowedNodes: [pve2]
