@@ -35,7 +35,8 @@ spec:
       - 10.6.110.51-10.6.110.59
   dnsServers:
     - 10.6.1.53
-  allowedNodes: [pve2]
+  allowedNodes:
+    - pve2
   credentialsRef:
     name: proxmox-credentials
 ---
