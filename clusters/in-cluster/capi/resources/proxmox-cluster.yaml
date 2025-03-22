@@ -61,7 +61,6 @@ spec:
               interfaces:
                 - deviceSelector:
                     physical: true
-                  dhcp: true
                   vip:
                     ip: 10.6.110.50
         - |
@@ -144,7 +143,6 @@ spec:
               interfaces:
                 - deviceSelector:
                     physical: true
-                  dhcp: true
                   vip:
                     ip: 10.6.110.50
         - |
