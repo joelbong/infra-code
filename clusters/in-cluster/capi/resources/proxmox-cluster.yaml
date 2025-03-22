@@ -62,7 +62,7 @@ spec:
           machine:
             network:
               interfaces:
-                - deviceSelector: eth0
+                - interface: eth0
                   dhcp: false
                   vip:
                     ip: 10.6.110.49
