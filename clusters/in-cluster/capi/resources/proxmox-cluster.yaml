@@ -60,12 +60,12 @@ spec:
       strategicPatches:
         - |
           machine:
-          network:
-            interfaces:
-              - interface: enp2s0
-                dhcp: true
-                vip:
-                  ip: 10.6.110.50
+            network:
+              interfaces:
+                - interface: enp2s0
+                  dhcp: true
+                  vip:
+                    ip: 10.6.110.50
         - |
           machine:
             install:
@@ -142,12 +142,12 @@ spec:
       strategicPatches:
         - |
           machine:
-          network:
-            interfaces:
-              - interface: enp2s0
-                dhcp: true
-                vip:
-                  ip: 10.6.110.50
+            network:
+              interfaces:
+                - interface: enp2s0
+                  dhcp: true
+                  vip:
+                    ip: 10.6.110.50
         - |
           machine:
             install:
