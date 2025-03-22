@@ -26,6 +26,9 @@ kind: ProxmoxCluster
 metadata:
   name: proxmox-cluster
 spec:
+  controlPlaneEndpoint:
+    host: 10.6.110.49
+    port: 6443
   ipv4Config:
     prefix: 24
     addresses:
