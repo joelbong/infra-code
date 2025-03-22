@@ -27,13 +27,8 @@ metadata:
   name: proxmox-cluster
 spec:
   controlPlaneEndpoint:
-    host: 10.6.110.50
+    host: 10.6.110.51
     port: 6443
-  ipv4Config:
-    prefix: 24
-    addresses:
-      - 10.6.110.51-10.6.110.59
-    gateway: 10.6.110.1
   dnsServers:
     - 10.6.1.53
   allowedNodes:
