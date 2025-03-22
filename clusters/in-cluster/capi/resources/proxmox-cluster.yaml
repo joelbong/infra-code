@@ -29,7 +29,7 @@ spec:
   ipv4Config:
     prefix: 24
     addresses:
-      - 10.6.110.51-10.6.110.59
+      - 10.6.110.50-10.6.110.59
     gateway: 10.6.110.1
   dnsServers:
     - 10.6.1.53
@@ -55,14 +55,6 @@ spec:
       generateType: controlplane
       talosVersion: v1.9.4
       strategicPatches:
-        - |
-          machine:
-            network:
-              interfaces:
-                - deviceSelector:
-                    physical: true
-                  vip:
-                    ip: 10.6.110.50
         - |
           machine:
             install:
