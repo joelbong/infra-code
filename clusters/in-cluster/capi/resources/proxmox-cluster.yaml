@@ -33,6 +33,7 @@ spec:
     prefix: 24
     addresses:
       - 10.6.110.51-10.6.110.59
+    gateway: 10.6.110.1
   dnsServers:
     - 10.6.1.53
   allowedNodes:
