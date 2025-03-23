@@ -104,9 +104,9 @@ spec:
                   metadata:
                     name: cilium-ca
                     namespace: kube-system
-                  stringData:
-                    ca.crt: <path:kube-system:cilium-ca#ca.crt>
-                    ca.key: <path:kube-system:cilium-ca#ca.key>
+                  data:
+                    ca.crt: <path:kube-system:cilium-ca#ca.crt | base64encode>
+                    ca.key: <path:kube-system:cilium-ca#ca.key | base64encode>
                   ---
                   # Source: cilium/templates/hubble/tls-helm/server-secret.yaml
                   apiVersion: v1
@@ -115,10 +115,10 @@ spec:
                     name: hubble-server-certs
                     namespace: kube-system
                   type: kubernetes.io/tls
-                  stringData:
-                    ca.crt:  <path:kube-system:hubble-server-certs#ca.crt>
-                    tls.crt: <path:kube-system:hubble-server-certs#tls.crt>
-                    tls.key: <path:kube-system:hubble-server-certs#tls.key>
+                  data:
+                    ca.crt:  <path:kube-system:hubble-server-certs#ca.crt | base64encode>
+                    tls.crt: <path:kube-system:hubble-server-certs#tls.crt | base64encode>
+                    tls.key: <path:kube-system:hubble-server-certs#tls.key | base64encode>
               - name: proxmox-cloud-controller-manager
                 contents: |-
                   apiVersion: v1
@@ -127,8 +127,8 @@ spec:
                   metadata:
                     name: proxmox-cloud-controller-manager
                     namespace: kube-system
-                  stringData:
-                    config.yaml: <path:kube-system:proxmox-cloud-controller-manager#config.yaml>
+                  data:
+                    config.yaml: <path:kube-system:proxmox-cloud-controller-manager#config.yaml | base64encode>
               - name: proxmox-csi-plugin
                 contents: |-
                   apiVersion: v1
@@ -137,8 +137,8 @@ spec:
                   metadata:
                     name: proxmox-csi-plugin
                     namespace: csi-proxmox
-                  stringData:
-                    config.yaml: <path:csi-proxmox:proxmox-csi-plugin#config.yaml>
+                  data:
+                    config.yaml: <path:csi-proxmox:proxmox-csi-plugin#config.yaml | base64encode>
 ---
 kind: ProxmoxMachineTemplate
 apiVersion: infrastructure.cluster.x-k8s.io/v1alpha1
