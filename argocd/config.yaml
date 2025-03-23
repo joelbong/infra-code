@@ -1,5 +1,5 @@
 #https://artifacthub.io/packages/helm/argo-cd-oci/argo-cd
 repository: ghcr.io/argoproj/argo-helm
 chart: argo-cd
-version: 7.8.8
+version: 7.8.13
 podSecurityLevel: "baseline"

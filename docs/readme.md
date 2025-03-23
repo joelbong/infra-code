@@ -79,7 +79,7 @@
 5. ArgoCD
    1. Install chart
       `helm repo add argo https://argoproj.github.io/argo-helm`
-      `helm upgrade -i argocd oci://ghcr.io/argoproj/argo-helm/argo-cd --version 7.8.2 -n argocd --create-namespace -f argocd/values.yaml`
+      `helm upgrade -i argocd oci://ghcr.io/argoproj/argo-helm/argo-cd --version 7.8.13 -n argocd --create-namespace -f argocd/values.yaml`
    2. Create ingressroute for ArgoCD
       `kubectl apply -n argocd -f clusters/in-cluster/argocd/resources/argocd-ingressroute.yaml`
    3. Create external secret for github repo
