@@ -93,6 +93,52 @@ spec:
                 - https://raw.githubusercontent.com/sergelogvinov/proxmox-cloud-controller-manager/refs/tags/v0.7.0/docs/deploy/cloud-controller-manager.yml
                 - https://raw.githubusercontent.com/sergelogvinov/proxmox-csi-plugin/refs/tags/v0.11.0/docs/deploy/proxmox-csi-plugin.yml
                 - https://raw.githubusercontent.com/metallb/metallb/v0.14.9/config/manifests/metallb-native.yaml
+        - |
+          cluster:
+            inlineManifests:
+              - name: cilium-cas
+                contents: |
+                  # Source: cilium/templates/cilium-ca-secret.yaml
+                  apiVersion: v1
+                  kind: Secret
+                  metadata:
+                    name: cilium-ca
+                    namespace: kube-system
+                  stringData:
+                    ca.crt: <path:kube-system:cilium-ca#ca.crt>
+                    ca.key: <path:kube-system:cilium-ca#ca.key>
+                  ---
+                  # Source: cilium/templates/hubble/tls-helm/server-secret.yaml
+                  apiVersion: v1
+                  kind: Secret
+                  metadata:
+                    name: hubble-server-certs
+                    namespace: kube-system
+                  type: kubernetes.io/tls
+                  stringData:
+                    ca.crt:  <path:kube-system:hubble-server-certs#ca.crt>
+                    tls.crt: <path:kube-system:hubble-server-certs#tls.crt>
+                    tls.key: <path:kube-system:hubble-server-certs#tls.key>
+              - name: proxmox-cloud-controller-manager
+                contents: |-
+                  apiVersion: v1
+                  kind: Secret
+                  type: Opaque
+                  metadata:
+                    name: proxmox-cloud-controller-manager
+                    namespace: kube-system
+                  stringData:
+                    config.yaml: <path:kube-system:proxmox-cloud-controller-manager#config.yaml>
+              - name: proxmox-csi-plugin
+                contents: |-
+                  apiVersion: v1
+                  kind: Secret
+                  type: Opaque
+                  metadata:
+                    name: proxmox-csi-plugin
+                    namespace: csi-proxmox
+                  stringData:
+                    config.yaml: <path:csi-proxmox:proxmox-csi-plugin#config.yaml>
 ---
 kind: ProxmoxMachineTemplate
 apiVersion: infrastructure.cluster.x-k8s.io/v1alpha1
