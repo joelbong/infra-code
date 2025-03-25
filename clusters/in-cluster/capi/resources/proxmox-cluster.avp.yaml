@@ -1,229 +1,229 @@
-apiVersion: cluster.x-k8s.io/v1beta1
-kind: Cluster
-metadata:
-  name: cluster
-  labels:
-    cluster.x-k8s.io/cluster-name: cluster
-spec:
-  clusterNetwork:
-    pods:
-      cidrBlocks:
-        - 10.244.0.0/16
-    services:
-      cidrBlocks:
-        - 10.96.0.0/12
-  infrastructureRef:
-    kind: ProxmoxCluster
-    apiVersion: infrastructure.cluster.x-k8s.io/v1alpha1
-    name: proxmox-cluster
-  controlPlaneRef:
-    kind: TalosControlPlane
-    apiVersion: controlplane.cluster.x-k8s.io/v1alpha3
-    name: talos-control-planes
----
-apiVersion: infrastructure.cluster.x-k8s.io/v1alpha1
-kind: ProxmoxCluster
-metadata:
-  name: proxmox-cluster
-spec:
-  controlPlaneEndpoint:
-    host: 10.6.110.49
-    port: 6443
-  ipv4Config:
-    prefix: 24
-    addresses:
-      - 10.6.110.50-10.6.110.59
-    gateway: 10.6.110.1
-  dnsServers:
-    - 10.6.1.53
-  allowedNodes:
-    - pve2
-  credentialsRef:
-    name: proxmox-credentials
----
-apiVersion: controlplane.cluster.x-k8s.io/v1alpha3
-kind: TalosControlPlane
-metadata:
-  name: talos-control-planes
-spec:
-  version: v1.32.2
-  replicas: 3
-  infrastructureTemplate:
-    kind: ProxmoxMachineTemplate
-    apiVersion: infrastructure.cluster.x-k8s.io/v1alpha1
-    name: control-plane-machine-template
-    namespace: capi
-  controlPlaneConfig:
-    controlplane:
-      generateType: controlplane
-      talosVersion: v1.9.4
-      strategicPatches:
-        - |
-          machine:
-            network:
-              interfaces:
-                - interface: eth0
-                  dhcp: false
-                  vip:
-                    ip: 10.6.110.49
-                - deviceSelector:
-                    physical: true
-                  dhcp: false
-                  vip:
-                    ip: 10.6.110.49
-            install:
-              disk: /dev/sda
-              image: factory.talos.dev/installer/ce4c980550dd2ab1b17bbf2b08801c7eb59418eafe8f279833297925d67c7515:v1.9.4
-              extraKernelArgs:
-                - net.ifnames=0
-        - |
-          cluster:
-            network:
-              cni:
-                name: custom
-                urls:
-                  - https://raw.githubusercontent.com/joelbong/infra-code/refs/heads/main/management-cluster/cilium/helm-output.yaml
-            proxy:
-              disabled: true
-        - |
-          cluster:
-            externalCloudProvider:
-              enabled: true
-              manifests:
-                - https://raw.githubusercontent.com/sergelogvinov/proxmox-cloud-controller-manager/refs/tags/v0.7.0/docs/deploy/cloud-controller-manager.yml
-                - https://raw.githubusercontent.com/sergelogvinov/proxmox-csi-plugin/refs/tags/v0.11.0/docs/deploy/proxmox-csi-plugin.yml
-                - https://raw.githubusercontent.com/metallb/metallb/v0.14.9/config/manifests/metallb-native.yaml
-        - |
-          cluster:
-            inlineManifests:
-              - name: cilium-cas
-                contents: |
-                  # Source: cilium/templates/cilium-ca-secret.yaml
-                  apiVersion: v1
-                  kind: Secret
-                  metadata:
-                    name: cilium-ca
-                    namespace: kube-system
-                  data:
-                    ca.crt: <path:kube-system:cilium-ca#ca.crt | base64encode>
-                    ca.key: <path:kube-system:cilium-ca#ca.key | base64encode>
-                  ---
-                  # Source: cilium/templates/hubble/tls-helm/server-secret.yaml
-                  apiVersion: v1
-                  kind: Secret
-                  metadata:
-                    name: hubble-server-certs
-                    namespace: kube-system
-                  type: kubernetes.io/tls
-                  data:
-                    ca.crt:  <path:kube-system:hubble-server-certs#ca.crt | base64encode>
-                    tls.crt: <path:kube-system:hubble-server-certs#tls.crt | base64encode>
-                    tls.key: <path:kube-system:hubble-server-certs#tls.key | base64encode>
-              - name: proxmox-cloud-controller-manager
-                contents: |-
-                  apiVersion: v1
-                  kind: Secret
-                  type: Opaque
-                  metadata:
-                    name: proxmox-cloud-controller-manager
-                    namespace: kube-system
-                  data:
-                    config.yaml: <path:kube-system:proxmox-cloud-controller-manager#config.yaml | base64encode>
-              - name: proxmox-csi-plugin
-                contents: |-
-                  apiVersion: v1
-                  kind: Secret
-                  type: Opaque
-                  metadata:
-                    name: proxmox-csi-plugin
-                    namespace: csi-proxmox
-                  data:
-                    config.yaml: <path:csi-proxmox:proxmox-csi-plugin#config.yaml | base64encode>
----
-kind: ProxmoxMachineTemplate
-apiVersion: infrastructure.cluster.x-k8s.io/v1alpha1
-metadata:
-  name: control-plane-machine-template
-spec:
-  template:
-    spec:
-      checks:
-        skipCloudInitStatus: true
-        skipQemuGuestAgent: true
-      sourceNode: pve2
-      templateID: 7000
----
-apiVersion: cluster.x-k8s.io/v1beta1
-kind: MachineDeployment
-metadata:
-  name: worker-nodes
-  labels:
-    cluster.x-k8s.io/cluster-name: cluster
-spec:
-  clusterName: cluster
-  replicas: 1
-  selector:
-    matchLabels:
-      cluster.x-k8s.io/cluster-name: cluster
-  template:
-    metadata:
-      labels:
-        cluster.x-k8s.io/cluster-name: cluster
-    spec:
-      clusterName: cluster
-      version: v1.32.2
-      bootstrap:
-        configRef:
-          kind: TalosConfigTemplate
-          apiVersion: bootstrap.cluster.x-k8s.io/v1alpha3
-          name: talos-worker-bootstrap
-      infrastructureRef:
-        kind: ProxmoxMachineTemplate
-        apiVersion: infrastructure.cluster.x-k8s.io/v1alpha1
-        name: worker-machine-template
----
-apiVersion: bootstrap.cluster.x-k8s.io/v1alpha3
-kind: TalosConfigTemplate
-metadata:
-  name: talos-worker-bootstrap
-spec:
-  template:
-    spec:
-      generateType: worker
-      talosVersion: v1.9.4
-      strategicPatches:
-        - |
-          machine:
-            install:
-              disk: /dev/sda
-              image: factory.talos.dev/installer/ce4c980550dd2ab1b17bbf2b08801c7eb59418eafe8f279833297925d67c7515:v1.9.4
-        - |
-          cluster:
-            network:
-              cni:
-                name: custom
-                urls:
-                  - https://raw.githubusercontent.com/joelbong/infra-code/refs/heads/main/management-cluster/cilium/helm-output.yaml
-            proxy:
-              disabled: true
-        - |
-          cluster:
-            externalCloudProvider:
-              enabled: true
-              manifests:
-                - https://raw.githubusercontent.com/sergelogvinov/proxmox-cloud-controller-manager/refs/tags/v0.7.0/docs/deploy/cloud-controller-manager.yml
-                - https://raw.githubusercontent.com/sergelogvinov/proxmox-csi-plugin/refs/tags/v0.11.0/docs/deploy/proxmox-csi-plugin.yml
-                - https://raw.githubusercontent.com/metallb/metallb/v0.14.9/config/manifests/metallb-native.yaml
----
-apiVersion: infrastructure.cluster.x-k8s.io/v1alpha1
-kind: ProxmoxMachineTemplate
-metadata:
-  name: worker-machine-template
-spec:
-  template:
-    spec:
-      checks:
-        skipCloudInitStatus: true
-        skipQemuGuestAgent: true
-      sourceNode: pve2
-      templateID: 7000
+# apiVersion: cluster.x-k8s.io/v1beta1
+# kind: Cluster
+# metadata:
+#   name: cluster
+#   labels:
+#     cluster.x-k8s.io/cluster-name: cluster
+# spec:
+#   clusterNetwork:
+#     pods:
+#       cidrBlocks:
+#         - 10.244.0.0/16
+#     services:
+#       cidrBlocks:
+#         - 10.96.0.0/12
+#   infrastructureRef:
+#     kind: ProxmoxCluster
+#     apiVersion: infrastructure.cluster.x-k8s.io/v1alpha1
+#     name: proxmox-cluster
+#   controlPlaneRef:
+#     kind: TalosControlPlane
+#     apiVersion: controlplane.cluster.x-k8s.io/v1alpha3
+#     name: talos-control-planes
+# ---
+# apiVersion: infrastructure.cluster.x-k8s.io/v1alpha1
+# kind: ProxmoxCluster
+# metadata:
+#   name: proxmox-cluster
+# spec:
+#   controlPlaneEndpoint:
+#     host: 10.6.110.49
+#     port: 6443
+#   ipv4Config:
+#     prefix: 24
+#     addresses:
+#       - 10.6.110.50-10.6.110.59
+#     gateway: 10.6.110.1
+#   dnsServers:
+#     - 10.6.1.53
+#   allowedNodes:
+#     - pve2
+#   credentialsRef:
+#     name: proxmox-credentials
+# ---
+# apiVersion: controlplane.cluster.x-k8s.io/v1alpha3
+# kind: TalosControlPlane
+# metadata:
+#   name: talos-control-planes
+# spec:
+#   version: v1.32.2
+#   replicas: 3
+#   infrastructureTemplate:
+#     kind: ProxmoxMachineTemplate
+#     apiVersion: infrastructure.cluster.x-k8s.io/v1alpha1
+#     name: control-plane-machine-template
+#     namespace: capi
+#   controlPlaneConfig:
+#     controlplane:
+#       generateType: controlplane
+#       talosVersion: v1.9.4
+#       strategicPatches:
+#         - |
+#           machine:
+#             network:
+#               interfaces:
+#                 - interface: eth0
+#                   dhcp: false
+#                   vip:
+#                     ip: 10.6.110.49
+#                 - deviceSelector:
+#                     physical: true
+#                   dhcp: false
+#                   vip:
+#                     ip: 10.6.110.49
+#             install:
+#               disk: /dev/sda
+#               image: factory.talos.dev/installer/ce4c980550dd2ab1b17bbf2b08801c7eb59418eafe8f279833297925d67c7515:v1.9.4
+#               extraKernelArgs:
+#                 - net.ifnames=0
+#         - |
+#           cluster:
+#             network:
+#               cni:
+#                 name: custom
+#                 urls:
+#                   - https://raw.githubusercontent.com/joelbong/infra-code/refs/heads/main/management-cluster/cilium/helm-output.yaml
+#             proxy:
+#               disabled: true
+#         - |
+#           cluster:
+#             externalCloudProvider:
+#               enabled: true
+#               manifests:
+#                 - https://raw.githubusercontent.com/sergelogvinov/proxmox-cloud-controller-manager/refs/tags/v0.7.0/docs/deploy/cloud-controller-manager.yml
+#                 - https://raw.githubusercontent.com/sergelogvinov/proxmox-csi-plugin/refs/tags/v0.11.0/docs/deploy/proxmox-csi-plugin.yml
+#                 - https://raw.githubusercontent.com/metallb/metallb/v0.14.9/config/manifests/metallb-native.yaml
+#         - |
+#           cluster:
+#             inlineManifests:
+#               - name: cilium-cas
+#                 contents: |
+#                   # Source: cilium/templates/cilium-ca-secret.yaml
+#                   apiVersion: v1
+#                   kind: Secret
+#                   metadata:
+#                     name: cilium-ca
+#                     namespace: kube-system
+#                   data:
+#                     ca.crt: <path:kube-system:cilium-ca#ca.crt | base64encode>
+#                     ca.key: <path:kube-system:cilium-ca#ca.key | base64encode>
+#                   ---
+#                   # Source: cilium/templates/hubble/tls-helm/server-secret.yaml
+#                   apiVersion: v1
+#                   kind: Secret
+#                   metadata:
+#                     name: hubble-server-certs
+#                     namespace: kube-system
+#                   type: kubernetes.io/tls
+#                   data:
+#                     ca.crt:  <path:kube-system:hubble-server-certs#ca.crt | base64encode>
+#                     tls.crt: <path:kube-system:hubble-server-certs#tls.crt | base64encode>
+#                     tls.key: <path:kube-system:hubble-server-certs#tls.key | base64encode>
+#               - name: proxmox-cloud-controller-manager
+#                 contents: |-
+#                   apiVersion: v1
+#                   kind: Secret
+#                   type: Opaque
+#                   metadata:
+#                     name: proxmox-cloud-controller-manager
+#                     namespace: kube-system
+#                   data:
+#                     config.yaml: <path:kube-system:proxmox-cloud-controller-manager#config.yaml | base64encode>
+#               - name: proxmox-csi-plugin
+#                 contents: |-
+#                   apiVersion: v1
+#                   kind: Secret
+#                   type: Opaque
+#                   metadata:
+#                     name: proxmox-csi-plugin
+#                     namespace: csi-proxmox
+#                   data:
+#                     config.yaml: <path:csi-proxmox:proxmox-csi-plugin#config.yaml | base64encode>
+# ---
+# kind: ProxmoxMachineTemplate
+# apiVersion: infrastructure.cluster.x-k8s.io/v1alpha1
+# metadata:
+#   name: control-plane-machine-template
+# spec:
+#   template:
+#     spec:
+#       checks:
+#         skipCloudInitStatus: true
+#         skipQemuGuestAgent: true
+#       sourceNode: pve2
+#       templateID: 7000
+# ---
+# apiVersion: cluster.x-k8s.io/v1beta1
+# kind: MachineDeployment
+# metadata:
+#   name: worker-nodes
+#   labels:
+#     cluster.x-k8s.io/cluster-name: cluster
+# spec:
+#   clusterName: cluster
+#   replicas: 1
+#   selector:
+#     matchLabels:
+#       cluster.x-k8s.io/cluster-name: cluster
+#   template:
+#     metadata:
+#       labels:
+#         cluster.x-k8s.io/cluster-name: cluster
+#     spec:
+#       clusterName: cluster
+#       version: v1.32.2
+#       bootstrap:
+#         configRef:
+#           kind: TalosConfigTemplate
+#           apiVersion: bootstrap.cluster.x-k8s.io/v1alpha3
+#           name: talos-worker-bootstrap
+#       infrastructureRef:
+#         kind: ProxmoxMachineTemplate
+#         apiVersion: infrastructure.cluster.x-k8s.io/v1alpha1
+#         name: worker-machine-template
+# ---
+# apiVersion: bootstrap.cluster.x-k8s.io/v1alpha3
+# kind: TalosConfigTemplate
+# metadata:
+#   name: talos-worker-bootstrap
+# spec:
+#   template:
+#     spec:
+#       generateType: worker
+#       talosVersion: v1.9.4
+#       strategicPatches:
+#         - |
+#           machine:
+#             install:
+#               disk: /dev/sda
+#               image: factory.talos.dev/installer/ce4c980550dd2ab1b17bbf2b08801c7eb59418eafe8f279833297925d67c7515:v1.9.4
+#         - |
+#           cluster:
+#             network:
+#               cni:
+#                 name: custom
+#                 urls:
+#                   - https://raw.githubusercontent.com/joelbong/infra-code/refs/heads/main/management-cluster/cilium/helm-output.yaml
+#             proxy:
+#               disabled: true
+#         - |
+#           cluster:
+#             externalCloudProvider:
+#               enabled: true
+#               manifests:
+#                 - https://raw.githubusercontent.com/sergelogvinov/proxmox-cloud-controller-manager/refs/tags/v0.7.0/docs/deploy/cloud-controller-manager.yml
+#                 - https://raw.githubusercontent.com/sergelogvinov/proxmox-csi-plugin/refs/tags/v0.11.0/docs/deploy/proxmox-csi-plugin.yml
+#                 - https://raw.githubusercontent.com/metallb/metallb/v0.14.9/config/manifests/metallb-native.yaml
+# ---
+# apiVersion: infrastructure.cluster.x-k8s.io/v1alpha1
+# kind: ProxmoxMachineTemplate
+# metadata:
+#   name: worker-machine-template
+# spec:
+#   template:
+#     spec:
+#       checks:
+#         skipCloudInitStatus: true
+#         skipQemuGuestAgent: true
+#       sourceNode: pve2
+#       templateID: 7000
