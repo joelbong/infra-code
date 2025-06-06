@@ -15,6 +15,7 @@
     "talos",
     "traefik",
     "openwebui",
-    "capi"
+    "capi",
+    "cert-manager"
   ]
 }
