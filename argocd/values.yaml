@@ -18,7 +18,7 @@ configs:
     controller.status.processors: "1"
     controller.operation.processors: "1"
     controller.sync.timeout.seconds: "300"
-    controller.resource.health.persist: "false"
+    controller.resource.health.persist: "true"
     controller.kubectl.parallelism.limit: "1"
     controller.k8sclient.retry.max: "3"
     controller.k8sclient.retry.base.backoff: "2000"
