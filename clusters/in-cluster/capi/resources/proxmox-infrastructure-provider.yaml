@@ -4,6 +4,6 @@ kind: InfrastructureProvider
 metadata:
   name: proxmox
 spec:
-  version: v0.6.2
+  version: v0.7.1
   configSecret:
     name: proxmox-credentials
