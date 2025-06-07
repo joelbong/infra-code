@@ -1,14 +1,8 @@
 cluster:
-  controlPlane:
-    endpoint: https://controlplane1.bongima.be:6443
   apiServer:
     certSANs:
       - 10.96.0.1
       - kubernetes.default.svc
       - kubernetes.default.svc.cluster.local
       - 10.6.110.10
-      - 10.6.110.20
-      - 10.6.110.30
-      - controlplane1.bongima.be
-      - controlplane2.bongima.be
-      - controlplane3.bongima.be
+      - k8s-apiserver.bongima.be

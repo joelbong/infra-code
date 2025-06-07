@@ -1,4 +1,19 @@
 machine:
   certSANs:
-    - 10.6.110.20
+    - 10.6.110.10
+    - k8s-apiserver.bongima.be
+    - 10.6.110.12
     - controlplane2.bongima.be
+  network:
+    hostname: controlplane2
+    interfaces:
+      - deviceSelector:
+          physical: true
+        dhcp: false
+        vip:
+          ip: 10.6.110.10
+        addresses:
+          - 10.6.110.12/24
+        routes:
+          - network: 0.0.0.0/0        # default route
+            gateway: 10.6.110.1

@@ -1,3 +1,11 @@
-cluster:
-  controlPlane:
-    endpoint: https://10.6.110.82:6443 
+machine:
+  network:
+    hostname: worker3
+    interfaces:
+      - deviceSelector:
+          physical: true
+        addresses:
+          - 10.6.110.23/24
+        routes:
+          - network: 0.0.0.0/0        # default route
+            gateway: 10.6.110.1
