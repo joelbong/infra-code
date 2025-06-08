@@ -7,11 +7,9 @@ image:
   digest: ""
 service:
   ports:
-    protocol: TCP
-    port: 80
-    targetPort: 3000
-commonLabels:
-  app: dumbkan
+    - protocol: TCP
+      port: 80
+      targetPort: 3000
 fullnameOverride: dumbkan
 persistence:
   enabled: true
