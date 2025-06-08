@@ -16,6 +16,7 @@
     "traefik",
     "openwebui",
     "capi",
-    "cert-manager"
+    "cert-manager",
+    "dumbkan"
   ]
 }

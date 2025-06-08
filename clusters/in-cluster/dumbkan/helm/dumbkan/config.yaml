@@ -1,0 +1,5 @@
+#https://artifacthub.io/packages/helm/dysnix/app
+repository: https://dysnix.github.io/charts
+chart: app
+version: 0.99.18
+podSecurityLevel: "baseline"

@@ -1,0 +1,19 @@
+app:
+  name: dumbkan
+image:
+  registry: docker.io
+  repository: dumbwareio/dumbkan
+  tag: latest
+  digest: ""
+service:
+  ports:
+    protocol: TCP
+    port: 80
+    targetPort: 3000
+commonLabels:
+  app: dumbkan
+fullnameOverride: dumbkan
+persistence:
+  enabled: true
+  mountPath: /app/data
+  size: 1Gi
