@@ -7,10 +7,10 @@ image:
   digest: ""
 service:
   ports:
-    - name: http
+    http:
+      name: http
       port: 80
       targetPort: 3000
-      protocol: TCP
 fullnameOverride: dumbkan
 persistence:
   enabled: true
