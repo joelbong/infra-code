@@ -24,5 +24,3 @@ persistence:
   enabled: true
   mountPath: /opt/data/argus.db
   size: 250Mi
-  accessModes:
-    - ReadOnlyMany
