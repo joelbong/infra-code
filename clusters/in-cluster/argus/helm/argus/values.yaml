@@ -20,7 +20,6 @@ volumes:
 volumeMounts:
   argus-config:
     mountPath: /app
-    readOnly: true
 persistence:
   enabled: true
   mountPath: /opt/data/argus.db
