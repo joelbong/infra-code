@@ -17,7 +17,7 @@ volumes:
   argus-config:
     secret:
       secretName: argus-config
-volumesMounts:
+volumeMounts:
   argus-config:
     mountPath: /app
 persistence:
