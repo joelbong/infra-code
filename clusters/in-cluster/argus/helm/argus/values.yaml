@@ -1,0 +1,26 @@
+app:
+  name: argus
+image:
+  registry: docker.io
+  repository: releaseargus/argus
+  tag: 0.26.3
+  digest: ""
+service:
+  ports:
+    http:
+      name: http
+      port: 8080
+      targetPort: 8080
+      protocol: TCP
+fullnameOverride: argus
+volumes:
+  argus-config:
+    secret:
+      secretName: argus-config
+volumesMounts:
+  argus-config:
+    mountPath: /app
+persistence:
+  enabled: true
+  mountPath: /app/data
+  size: 250Mi

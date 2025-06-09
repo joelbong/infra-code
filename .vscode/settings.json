@@ -17,6 +17,7 @@
     "openwebui",
     "capi",
     "cert-manager",
-    "dumbkan"
+    "dumbkan",
+    "argus"
   ]
 }
