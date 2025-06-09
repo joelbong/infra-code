@@ -19,8 +19,10 @@ volumes:
       secretName: argus-config
 volumeMounts:
   argus-config:
-    mountPath: /app
+    mountPath: /app/config.yml
+    subPath: config.yaml
+    readOnly: true
 persistence:
   enabled: true
-  mountPath: /opt/data/argus.db
+  mountPath: /app/data
   size: 250Mi
