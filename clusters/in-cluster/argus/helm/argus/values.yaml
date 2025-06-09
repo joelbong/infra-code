@@ -20,9 +20,10 @@ volumes:
 volumeMounts:
   argus-config:
     mountPath: /app
+    readOnly: true
 persistence:
   enabled: true
-  mountPath: /app/data
+  mountPath: /opt/data/argus.db
   size: 250Mi
   accessModes:
     - ReadOnlyMany
