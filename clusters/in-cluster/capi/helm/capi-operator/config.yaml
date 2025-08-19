@@ -1,5 +1,5 @@
 #https://artifacthub.io/packages/helm/cluster-api-operator/cluster-api-operator
 repository: https://kubernetes-sigs.github.io/cluster-api-operator
 chart: cluster-api-operator
-version: 0.20.0
+version: 0.22.0
 podSecurityLevel: "baseline"
