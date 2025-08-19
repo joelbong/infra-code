@@ -3,7 +3,7 @@ machine:
     nameservers:
       - 10.6.1.53
   install:
-    image: factory.talos.dev/nocloud-installer/ce4c980550dd2ab1b17bbf2b08801c7eb59418eafe8f279833297925d67c7515:v1.10.3
+    image: factory.talos.dev/nocloud-installer/ce4c980550dd2ab1b17bbf2b08801c7eb59418eafe8f279833297925d67c7515:v1.10.6
 cluster:
   controlPlane:
     endpoint: https://k8s-apiserver.bongima.be:6443

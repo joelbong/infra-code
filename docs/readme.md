@@ -1,6 +1,6 @@
 # Gitops on a kubernetes talos cluster in a proxmox environment
 
-## Create nodes in Proxmox -> later with terraform
+## Create nodes in Proxmox (later with terraform)
 
 1. Create a VM and convert to a template.
 2. Create 3 control plane nodes from this template
@@ -14,11 +14,12 @@
 3. Generate template configs (gitignored)
    `talosctl gen config --with-secrets management-cluster/secrets.yaml management-cluster https://${NODE_VIP_DNS_OR_IP}:6443 -o management-cluster/templates/ --force`
 4. Create secrets.patch in inline manifest
+   - helm repo update
    - Cilium certs
      - Create helm output for cilium
-       `helm template cilium cilium/cilium --version 1.17.4 -n kube-system -f management-cluster/cilium/values.yaml > management-cluster/cilium/helm-output.yaml`
+       `helm template cilium cilium/cilium --version 1.18.1 -n kube-system -f management-cluster/cilium/values.yaml > management-cluster/cilium/helm-output.yaml`
      - remove the part of the cilium certs in the helm-output
-     - expose this in public github repo
+     - expose this in public github repo by pushing to repo! In general.patch the url Github of this raw file will be used to reference the cni
      - put the generated certs cilium-ca and hubble-server-certs in the management-cluster/patches/secrets.patch
    - [Create secret for proxmox ccm and csi](https://github.com/sergelogvinov/proxmox-csi-plugin/blob/main/docs/install.md#install-the-plugin-by-using-talos-machine-config)
 5. For each control plane node create a talos configuration file (gitignored)
@@ -44,7 +45,7 @@
 
 1. Cert manager
    `helm repo add cert-manager https://charts.jetstack.io`
-   `helm upgrade -i cert-manager cert-manager/cert-manager --version 1.17.2 -n cert-manager --create-namespace -f clusters/in-cluster/cert-manager/helm/cert-manager/values.yaml`
+   `helm upgrade -i cert-manager cert-manager/cert-manager --version 1.18.2 -n cert-manager --create-namespace -f clusters/in-cluster/cert-manager/helm/cert-manager/values.yaml`
 2. External secrets
    1. setup Bitwarden account with secret management
       1. Create a project
@@ -58,7 +59,7 @@
       `kubectl apply -n external-secrets -f clusters/in-cluster/external-secrets/resources/bitwarden-server-tls.yaml`
    4. Install chart
       `helm repo add external-secrets-operator https://charts.external-secrets.io/`
-      `helm upgrade -i external-secrets external-secrets-operator/external-secrets --version 0.17.0 -n external-secrets --create-namespace -f clusters/in-cluster/external-secrets/helm/external-secrets/values.yaml`
+      `helm upgrade -i external-secrets external-secrets-operator/external-secrets --version 0.19.2 -n external-secrets --create-namespace -f clusters/in-cluster/external-secrets/helm/external-secrets/values.yaml`
    5. Create clusterstore for bitwarden
       `kubectl apply -n external-secrets -f clusters/in-cluster/external-secrets/resources/clusterstore-bitwarden.yaml`
 3. Traefik
@@ -66,7 +67,7 @@
    2. Put this token in bitwarden as 'cloudflare-api-token'
    3. Install chart
       `helm repo add traefik https://traefik.github.io/charts`
-      `helm upgrade -i traefik traefik/traefik --version 36.0.0 -n traefik --create-namespace -f clusters/in-cluster/traefik/helm/traefik/values.yaml`
+      `helm upgrade -i traefik traefik/traefik --version 37.0.0 -n traefik --create-namespace -f clusters/in-cluster/traefik/helm/traefik/values.yaml`
    4. Apply external-secret for cloudflare-api-token
       `kubectl apply -n traefik -f clusters/in-cluster/traefik/resources/cloudflare-api-token-external-secret.yaml`
    5. Apply issuer with DNS challenge for your domain
@@ -82,11 +83,11 @@
       `kubectl apply -n external-dns -f clusters/in-cluster/external-dns/resources/pihole-external-secret.yaml`
    3. Install chart
       `helm repo add external-dns https://kubernetes-sigs.github.io/external-dns`
-      `helm upgrade -i external-dns external-dns/external-dns --version 1.16.1 -n external-dns --create-namespace -f clusters/in-cluster/external-dns/helm/external-dns/values.yaml`
+      `helm upgrade -i external-dns external-dns/external-dns --version 1.18.0 -n external-dns --create-namespace -f clusters/in-cluster/external-dns/helm/external-dns/values.yaml`
 5. ArgoCD
    1. Install chart
       `helm repo add argo https://argoproj.github.io/argo-helm`
-      `helm upgrade -i argocd oci://ghcr.io/argoproj/argo-helm/argo-cd --version 8.0.15 -n argocd --create-namespace -f argocd/values.yaml`
+      `helm upgrade -i argocd oci://ghcr.io/argoproj/argo-helm/argo-cd --version 8.3.0 -n argocd --create-namespace -f argocd/values.yaml`
    2. Create ingressroute for ArgoCD
       `kubectl apply -n argocd -f clusters/in-cluster/argocd/resources/argocd-ingressroute.yaml`
    3. Create external secret for github repo
@@ -94,27 +95,34 @@
    4. Create root argocd application for applicationsets
       `kubectl apply -n argocd -f argocd/root-application.yaml`
 
-## Updates and Maintenances
+## Maintenances (should be automated with scripts)
 
 - Remove dead pods
   `kubectl delete pod --field-selector=status.phase==Succeeded -A`
   `kubectl delete pod --field-selector=status.phase==Failed -A`
-- Argocd will auto update the helm charts in clusters
-- update Argocd with helm process and update version in argocd/config.yaml
-  `helm upgrade -i argocd oci://ghcr.io/argoproj/argo-helm/argo-cd --version ${VERSION} -n argocd --create-namespace -f argocd/values.yaml`
-- Upgrade talosctl
+
+## Updates
+
+- [update kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/) - current version: 1.33.4
+- [update helm from script](https://helm.sh/docs/intro/install/) - current version: 3.18.5
+- [update k9s via snap](https://github.com/derailed/k9s)
+- Upgrade talosctl - current version 1.10.6
   `sudo rm /usr/local/bin/talosctl`
   `curl -sL https://talos.dev/install | sh`
-- upgrade talos image version
+- update the helm chart version in their helm/config per cluster: Argocd will auto update the helm charts in clusters
+- update Argocd with helm process and update version in argocd/config.yaml
+  `helm upgrade -i argocd oci://ghcr.io/argoproj/argo-helm/argo-cd --version ${VERSION} -n argocd --create-namespace -f argocd/values.yaml`
+- upgrade talos image version (not really needed, because the talos upgrade will handle this)
   - get latest image version from [talos image factory](https://factory.talos.dev/)
   - download ISO into proxmox and replace disk in talos VM template
-- Upgrade talos image version node per node. Start with controlplane nodes. Continue to next node when previous node in ready state
+- [Upgrade talos image version node per node](https://www.talos.dev/v1.10/talos-guides/upgrading-talos/). Start with controlplane nodes. Continue to next node when previous node in ready state - current version: 1.10.6
   `talosctl upgrade --nodes ${NODE_IP/DNS} --image ${TALOS_IMAGE}`
 - Update talos machine config
-  - update Proxmox csi, Proxmox ccm and Metallb versions in management-cluster/patches/system-addons.patch
+  - Update system addons versions in management-cluster/patches/system-addons.patch
+    - [Proxmox ccm](https://github.com/sergelogvinov/proxmox-cloud-controller-manager/blob/main/CHANGELOG.md) - current version: 0.10.0
+    - [Proxmox csi](https://github.com/sergelogvinov/proxmox-cloud-controller-manager/blob/main/CHANGELOG.md) - current version: 0.13.0
+    - Metallb - current version: 0.15.2
   - put new Talos image version in management-cluster/patches/general.patch.
-  - Repeat step 3 till step 7 in [talos bootstrap](#bootstrap-talos-k8s-cluster)
-- [Upgrade kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/)
-- Upgrade kubernetes version. For one controlplane nodes
+  - Repeat step 4 till step 7 and 11 in [talos bootstrap](#bootstrap-talos-k8s-cluster)
+- [Upgrade kubernetes version](https://www.talos.dev/v1.10/kubernetes-guides/upgrading-kubernetes/). For one controlplane nodes - current version: 1.33.4
   `talosctl --nodes ${CONTROL_PLANE_IP/NODE} upgrade-k8s --to ${VERSION}`
-- upgrade Proxmox node
