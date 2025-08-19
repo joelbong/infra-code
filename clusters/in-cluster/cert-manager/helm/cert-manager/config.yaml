@@ -1,5 +1,5 @@
 #https://artifacthub.io/packages/helm/cert-manager/cert-manager
 repository: https://charts.jetstack.io
 chart: cert-manager
-version: 1.17.2
+version: 1.18.2
 podSecurityLevel: "baseline"
