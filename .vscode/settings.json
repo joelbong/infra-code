@@ -18,6 +18,7 @@
     "capi",
     "cert-manager",
     "dumbkan",
-    "argus"
+    "argus",
+    "metrics-server"
   ]
 }
